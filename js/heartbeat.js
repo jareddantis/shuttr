@@ -5,6 +5,7 @@
 */
 
 const $ = require('jquery');
+const fn = require('./fn');
 
 var oldStatus = null, oldSettings = null, handle = null;
 var debug = {
