@@ -1,0 +1,20 @@
+/*
+    Part of the Shuttr app by @aureljared.
+    Licensed under GPLv3.
+    http://github.com/aureljared/shuttr
+*/
+{
+  "name": "Shuttr",
+  "description": "Control your GoPro from your computer.",
+  "author": "aureljared",
+  "version": "0.0.1",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "child_process": "^1.0.2",
+    "jquery": "^3.1.1",
+    "node-wol": "^0.1.1"
+  }
+}

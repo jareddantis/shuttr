@@ -1,0 +1,48 @@
+<!--
+    Part of the Shuttr app by @aureljared.
+    Licensed under GPLv3.
+    http://github.com/aureljared/shuttr
+-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Hello World!</title>
+    </head>
+    <body>
+        <h1>shuttr for GoPro</h1>
+        <p>version 0.0.1 (node <script>document.write(process.versions.node)</script>, chromium <script>document.write(process.versions.chrome)</script>, electron <script>document.write(process.versions.electron)</script>)</p>
+
+        <div>
+            <h2>Power controls</h2>
+            <button type="button" id="sys_pwr_off">Power off GoPro</button>
+            <button type="button" id="sys_pwr_on">Power on GoPro</button>
+
+            <h2>Heartbeat</h2>
+            <button type="button" id="sys_getstatus">Ping</button>
+            <button type="button" id="sys_clrstatus">Clear</button>
+            <h4>Status</h4>
+            <p style="font-family: 'Courier New'" id="status"></p>
+            <h4>Settings</h4>
+            <p style="font-family: 'Courier New'" id="settings"></p>
+
+            <h2>Take a picture</h2>
+            <button type="button" id="sys_trigger">Click!</button>
+            <button type="button" id="sys_stop_rec">Stop recording</button>
+
+            <h2>Switch modes</h2>
+            <button type="button" id="mode_video_normal">Video mode</button>
+            <button type="button" id="mode_video_timelapse">Timelapse video mode</button>
+            <button type="button" id="mode_video_vphoto">Video + Photo mode</button>
+            <button type="button" id="mode_video_looping">Looping Video mode</button><br/>
+            <button type="button" id="mode_photo_normal">Photo mode</button>
+            <button type="button" id="mode_photo_cont">Continuous photo mode</button>
+            <button type="button" id="mode_photo_night">Night photo mode</button><br/>
+            <button type="button" id="mode_multi_burst">Burst mode</button>
+            <button type="button" id="mode_multi_timelapse">Timelapse mode</button>
+            <button type="button" id="mode_multi_nightlapse">Nightlapse mode</button>
+        </div>
+
+        <script src="js/ui.js"></script>
+    </body>
+</html>
