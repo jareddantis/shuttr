@@ -17,6 +17,11 @@ $(function(){
     bindToButton('sys_pwr_on', fn.power.on);
     bindToButton('sys_pwr_off', fn.power.off);
 
+    // Viewfinder
+    bindToButton('vf_open', fn.controls.vf_open);
+    bindToButton('vf_play', fn.controls.vf_play);
+    bindToButton('vf_close', fn.controls.vf_close);
+
     // Debugging
     bindToButton('sys_getstatus', dbg.parseStatus);
     bindToButton('sys_clrstatus', dbg.clearStatus);

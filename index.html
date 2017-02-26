@@ -14,6 +14,14 @@
         <p>version 0.0.1 (node <script>document.write(process.versions.node)</script>, chromium <script>document.write(process.versions.chrome)</script>, electron <script>document.write(process.versions.electron)</script>)</p>
 
         <div>
+            <h2>Viewfinder</h2>
+            <button type="button" id="vf_open">Open connection</button>
+            <button type="button" id="vf_play">Spawn viewer</button>
+            <button type="button" id="vf_close">Close connection</button>
+            <div id="viewfinder"></div>
+        </div>
+
+        <div>
             <h2>Power controls</h2>
             <button type="button" id="sys_pwr_off">Power off GoPro</button>
             <button type="button" id="sys_pwr_on">Power on GoPro</button>

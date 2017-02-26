@@ -4,15 +4,32 @@
     http://github.com/aureljared/shuttr
 */
 
-const { ajax } = require('jquery');
-const plat = require('./platform');
+const http = require('http');
 const wol = require('node-wol');
+const plat = require('./platform');
+const vf = require('./viewfinder');
 
+var handler = null;
 var shuttr = {
     system: {
         getStatus: function(callback) { get('status', {}, callback) }
     },
     controls: {
+        vf_open: function() {
+            console.log('open vf');
+            vf.open(function(dgramClient){
+                console.log(dgramClient);
+                handler = window.setInterval(vf.keepAlive, 2500);
+            });
+        },
+        vf_play: function() {
+            vf.play()
+        },
+        vf_close: function() {
+            console.log('close vf');
+            window.clearInterval(handler);
+            vf.close();
+        },
         trigger: function() { command('shutter', {p: 1}) },
         stoprec: function() { command('shutter', {p: 0}) }
     },
@@ -48,17 +65,25 @@ var command = function(cmd, data) {
     get('command/' + cmd, data);
 }
 var get = function(loc, data, cb) {
-    loc = 'http://10.5.5.9/gp/gpControl/' + loc;
-    data = (typeof data !== undefined) ? data : {};
-    var response = "";
-    ajax({
-        url: loc,
-        method: 'GET',
-        data: data
-    }).done(function(d){
-        if (typeof cb === "function")
-            cb(d);
-    });
+    var host = '10.5.5.9',
+        path = '/gp/gpControl/' + loc,
+        response = "";
+
+    // Encode data object as GET url
+    if (typeof data !== undefined) {
+        path += '?';
+        for (var key in data)
+            path += key + '=' + data[key] + '&';
+    }
+
+    var opts = { host: host, path: path };
+    http.request(opts, (res) => {
+        res.on('data', (chunk) => { response += chunk });
+        res.on('end', function(){
+            if (typeof cb === "function")
+                cb(response);
+        });
+    }).end();
 }
 
 module.exports = shuttr;

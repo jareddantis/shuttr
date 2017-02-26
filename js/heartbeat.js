@@ -21,7 +21,7 @@ var debug = {
         if (handle === null) {
             handle = window.setInterval(function() {
                 fn.system.getStatus(function(data){
-                    var { status, settings } = data;
+                    var { status, settings } = JSON.parse(data);
                     $('#status').empty();
                     $('#settings').empty();
 
@@ -62,16 +62,6 @@ var debug = {
                                 $("#settings").html(oldContent + ", " + key + " = " + settings[key]);
                         }
                     }
-
-                    // // Display new status
-                    // for (var key in constants[model].status) {
-                    //     var index = constants[model].status[key];
-                    //     if (status[index] !== undefined) {
-                    //         var line = $("<p></p>");
-                    //         $(line).text(key + ": " + status[index]);
-                    //         $("#status").append(line);
-                    //     }
-                    // }
                 });
             }, 500);
         }
