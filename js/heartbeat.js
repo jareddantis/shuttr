@@ -5,7 +5,7 @@
 */
 
 const $ = require('jquery');
-const fn = require('./fn');
+const fn = require('./shuttr');
 
 var oldStatus = null, oldSettings = null, handle = null;
 var debug = {

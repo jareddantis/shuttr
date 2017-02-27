@@ -6,8 +6,7 @@
 
 const $ = require('jquery');
 const remote = require('electron').remote;
-const fn = require(__dirname + '/js/fn');
-const constants = require(__dirname + '/js/constants');
+const fn = require(__dirname + '/js/shuttr');
 const dbg = require(__dirname + '/js/heartbeat');
 let model = "Hero5";
 
@@ -26,6 +25,7 @@ globalWin.on('leave-full-screen', (e) => {
 
 // Loader
 $(function(){
+    fn.init();
     window.setTimeout(() => { $('#intro').fadeOut() }, 500);
     window.setTimeout(() => { $('.hud').removeClass('hidden') }, 1000);
     window.setTimeout(() => { $('#viewfinder').animate({opacity: '1'}) }, 2000);

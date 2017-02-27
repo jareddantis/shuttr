@@ -5,7 +5,7 @@
 */
 
 var gopro = {
-    Hero5: {
+    HeroFive: {
         status: {
             INTERNAL_BATT_PRESENT: 1,    // 0 or 1
             INTERNAL_BATT_LEVEL: 2,      // 4 - charging, 3 - full, 2 - half, 1 - low
@@ -33,7 +33,6 @@ var gopro = {
             AVAILABLE_SPACE: 54,         // SD card, in KB
             SYS_UPTIME: 63,              // Milliseconds
             IS_ON_PREFS: 63,             // 0 or 1
-
             INTERNAL_BATT_PERCENT: 70
         },
         settings: {
@@ -627,7 +626,7 @@ var gopro = {
             }
         }
     },
-    Hero4: {
+    HeroFour: {
         status: {
             INTERNAL_BATT_PRESENT: 1,    // 0/1
             INTERNAL_BATT_LEVEL: 2,      // 4 - charging, 3 - full, 2 - half, 1 - low
