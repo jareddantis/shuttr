@@ -7,21 +7,34 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>Hello World!</title>
+        <title>shuttr</title>
+        <link rel="stylesheet" type="text/css" href="css/style.css">
     </head>
     <body>
-        <h1>shuttr for GoPro</h1>
-        <p>version 0.0.1 (node <script>document.write(process.versions.node)</script>, chromium <script>document.write(process.versions.chrome)</script>, electron <script>document.write(process.versions.electron)</script>)</p>
+        <div id="triggers">
+            <div id="buttons">
+                <button type="button" id="sys_pwr">power</button>
+                <button type="button" id="sys_trigger">fire</button>
+            </div>
+            <div id="led"></div>
+        </div>
+        <div id="titlebar">
+            <p>shuttr</p>
+        </div>
 
-        <div>
+        <div id="intro">
+            <img src="img/loading.gif" alt="">
+        </div>
+
+        <div id="viewfinder"></div>
+
+        <div id="controls">
             <h2>Viewfinder</h2>
             <button type="button" id="vf_open">Open connection</button>
             <button type="button" id="vf_play">Spawn viewer</button>
             <button type="button" id="vf_close">Close connection</button>
             <div id="viewfinder"></div>
-        </div>
 
-        <div>
             <h2>Power controls</h2>
             <button type="button" id="sys_pwr_off">Power off GoPro</button>
             <button type="button" id="sys_pwr_on">Power on GoPro</button>
@@ -49,6 +62,13 @@
             <button type="button" id="mode_multi_burst">Burst mode</button>
             <button type="button" id="mode_multi_timelapse">Timelapse mode</button>
             <button type="button" id="mode_multi_nightlapse">Nightlapse mode</button>
+        </div>
+
+        <div class="hud hidden" id="top">
+            <p>batt <span id="hud_batt">100%</span> remaining <span id="hud_remaining">0h 0m</span></p>
+        </div>
+        <div class="hud hidden" id="bottom">
+            <h1>helo</h1>
         </div>
 
         <script src="js/ui.js"></script>

@@ -9,8 +9,13 @@ var gopro = {
         status: {
             INTERNAL_BATT_PRESENT: 1,    // 0 or 1
             INTERNAL_BATT_LEVEL: 2,      // 4 - charging, 3 - full, 2 - half, 1 - low
+            EXTERNAL_BATT_PRESENT: 3,
+            EXTERNAL_BATT_LEVEL: 4,
+            IS_HOT: 6,                   // 0 or 1
             IS_BUSY: 8,                  // 0 or 1. Recording or processing.
+            IS_QUICK_CAPTURE: 9,         // 0 or 1
             IS_RECORDING: 10,            // 0 or 1. Recording only.
+            IS_SCREEN_LOCKED: 11,        // 0 or 1
             CURRENT_VID_DURATION: 13,    // Seconds
             CONNECTED_CLIENTS: 31,
             STREAMING_MODE: 32,          // 0 or 1
@@ -24,9 +29,12 @@ var gopro = {
             SYS_TIME: 40,                // Hex numbers, separated by '%' characters. YY:MM:DD:HH:MM:SS
             CURRENT_MODE: 43,            // 4 - Media Browser, 2 - MultiShot, 1 - Photo, 0 - Video
             CURRENT_SUBMODE: 44,         // 2 - Video+Photo/NightPhoto/NightLapse, 1 - TimelapseVideo/Looping/Timelapse, 0 - Video/Photo/Burst
+            IS_LOCATE_ACTIVE: 45,        // 0 or 1. Not GPS! Refers to self locator (beeping)
             AVAILABLE_SPACE: 54,         // SD card, in KB
             SYS_UPTIME: 63,              // Milliseconds
-            IS_ON_PREFS: 63              // 0 or 1
+            IS_ON_PREFS: 63,             // 0 or 1
+
+            INTERNAL_BATT_PERCENT: 70
         },
         settings: {
             video: {

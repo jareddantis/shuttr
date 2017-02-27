@@ -1,2 +1,3 @@
 node_modules/
-ffplay/
+bin/
+status.json

@@ -10,25 +10,36 @@ const plat = require('./platform');
 const vf = require('./viewfinder');
 
 var handler = null;
+var child = null;
 var shuttr = {
     system: {
         getStatus: function(callback) { get('status', {}, callback) }
     },
     controls: {
         vf_open: function() {
-            console.log('open vf');
-            vf.open(function(dgramClient){
-                console.log(dgramClient);
+            vf.open((dgramClient) => {
                 handler = window.setInterval(vf.keepAlive, 2500);
             });
         },
         vf_play: function() {
-            vf.play()
+            let viewfinder = vf.play();
+            if (viewfinder.ready) {
+                child = viewfinder.transcoder;
+
+                // Create iframe
+                let iframe = document.createElement('iframe');
+                iframe.src = 'http://127.0.0.1:2000/out';
+                iframe.width = '800px';
+                iframe.height = '600px';
+                document.querySelector('#viewfinder').appendChild(iframe);
+
+                console.log("[viewfinder] iframe created");
+            }
         },
         vf_close: function() {
-            console.log('close vf');
             window.clearInterval(handler);
             vf.close();
+            child.kill('SIGKILL');
         },
         trigger: function() { command('shutter', {p: 1}) },
         stoprec: function() { command('shutter', {p: 0}) }

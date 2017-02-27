@@ -1,0 +1,156 @@
+*:before, *:after { box-sizing: border-box }
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background: black;
+    overflow: hidden;
+}
+
+.deadcenter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.fullscreen {
+    width: 100%;
+    height: 100%;
+}
+.windowhandle {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-app-region: drag;
+}
+
+body {
+    * { outline: none }
+    
+    // text styles
+    h1, h2, h3, h4, h5, h6, p, li, td, span {
+        color: white;
+        font-family: 'DIN';
+    }
+
+    #controls {
+        position: relative;
+        z-index: 3;
+    }
+    #viewfinder {
+        opacity: 0;
+        //position: fixed;
+        //top: 0;
+        //left: 0;
+        //z-index: 1;
+        //.fullscreen;
+        //.deadcenter;
+        width: 100%;
+        height: 100%;
+        background: url('../img/viewfinder.png') no-repeat;
+        background-size: cover;
+        background-attachment: fixed;
+        iframe { border: none }
+    }
+    #triggers {
+        position: fixed;
+        z-index: 20;
+        top: 0;
+        right: 0;
+        height: 2.5rem;
+        & > div {
+            height: 2.5rem;
+            display: inline-flex;
+            float: left;
+        }
+        #buttons {
+            button {
+                padding: 0 15px;
+                vertical-align: -webkit-baseline-middle;
+                font-size: .8rem;
+                font-weight: bold;
+                color: black;
+                text-transform: uppercase;
+                border: none;
+                &#sys_pwr { background: #2cd14e }
+                &#sys_pwr:hover { background: #219838 }
+                &#sys_trigger { background: #fff }
+                &#sys_trigger:hover { background: #ddd }
+            }
+        }
+        #led {
+            width: 10px;
+            background: #222;
+            &.busy {
+                background: red;
+                box-shadow-color: red;
+            }
+        }
+    }
+    #intro {
+        position: fixed;
+        z-index: 10;
+        top: 0;
+        left: 0;
+        .deadcenter;
+        .fullscreen;
+
+        img { width: 200px }
+    }
+    .hud {
+        .windowhandle;
+        position: fixed;
+        z-index: 5;
+        left: 0;
+        position: absolute;
+        width: 100%;
+        background: rgba(0,0,0,0.3);
+        transition: margin 1s cubic-bezier(0,0,.2,.89);
+
+        &#top {
+            top: 0;
+            height: 2.5rem;
+            .deadcenter;
+
+            p {
+                margin: 0;
+                text-transform: uppercase;
+                font-size: .75rem;
+                color: #ddd;
+
+                span {
+                    font-size: 1.25rem;
+                    color: white;
+                    text-transform: none;
+                    margin: 0 .5rem 0 .25rem;
+                    font-weight: bold;
+                }
+            }
+        }
+        &#bottom {
+            bottom: 0;
+            height: 5rem;
+        }
+        &.hidden {
+            &#top { margin-top: -6rem }
+            &#bottom { margin-bottom: -6rem }
+        }
+    }
+}
+
+body.darwin {
+    #top { top: 2.5rem !important }
+    #titlebar {
+        .windowhandle;
+        position: fixed;
+        z-index: 15;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2.5rem;
+        background: rgba(0,0,0,0.3);
+        .deadcenter;
+    }
+    &.fullscreen {
+        #titlebar { display: none }
+        #top { top: 0 !important }
+    }
+}

@@ -5,14 +5,38 @@
 */
 
 const $ = require('jquery');
+const remote = require('electron').remote;
 const fn = require(__dirname + '/js/fn');
 const constants = require(__dirname + '/js/constants');
 const dbg = require(__dirname + '/js/heartbeat');
 let model = "Hero5";
 
+// Fullscreen
+let globalWin = remote.getCurrentWindow();
+globalWin.on('enter-full-screen', (e) => {
+    if (typeof e !== null)
+        console.log(e);
+    $('body').addClass('fullscreen');
+});
+globalWin.on('leave-full-screen', (e) => {
+    if (typeof e !== null)
+        console.log(e);
+    $('body').removeClass('fullscreen');
+});
+
+// Loader
+$(function(){
+    window.setTimeout(() => { $('#intro').fadeOut() }, 500);
+    window.setTimeout(() => { $('.hud').removeClass('hidden') }, 1000);
+    window.setTimeout(() => { $('#viewfinder').animate({opacity: '1'}) }, 2000);
+})
+
 // Buttons
 var bindToButton = function(id, fn) { $('#' + id).click(fn) }
 $(function(){
+    // Platform-specific styles
+    $('body').addClass(process.platform);
+
     // Power
     bindToButton('sys_pwr_on', fn.power.on);
     bindToButton('sys_pwr_off', fn.power.off);

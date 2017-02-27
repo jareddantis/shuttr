@@ -1,0 +1,31 @@
+<!--
+    Part of the Shuttr app by @aureljared.
+    Licensed under GPLv3.
+    http://github.com/aureljared/shuttr
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=640, initial-scale=1"/>
+    <style type="text/css">
+        html, body {
+            width: 800px;
+            height: 600px;
+            margin: 0;
+        }
+        canvas {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="videoCanvas"></canvas>
+    <script type="text/javascript" src="jsmpg.js"></script>
+    <script type="text/javascript">
+        var client = new WebSocket( 'ws://127.0.0.1:2001/' );
+        var canvas = document.getElementById('videoCanvas');
+        var player = new jsmpeg(client, {canvas:canvas});
+    </script>
+</body>
+</html>
