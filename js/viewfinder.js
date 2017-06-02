@@ -54,7 +54,7 @@ var viewfinder = {
     },
     play: function() {
         // Adapted from @citolen's goproh4 project
-        // Create a WebSocket
+        // Create a WebSocket to handle connections
         websocket.on('connection', (socket) => {
             console.log("[viewfinder] socket connected");
 
@@ -77,12 +77,11 @@ var viewfinder = {
             });
         }
 
-        // Serve video using Express
+        // Route incoming and outgoing data using Express
         server.post("/in", (req, res) => {
             console.log("[viewfinder] stream connected @ " + req.socket.remoteAddress + ":" + req.socket.remotePort);
             req.socket.setTimeout(0);
             req.on('data', (data) => {
-                console.log
                 websocket.broadcast(data, {binary: true});
             });
         })

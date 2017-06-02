@@ -1,10 +1,14 @@
+/*
+    Part of the Shuttr app by @aurelja@red.
+    Licensed under GPLv3.
+    http://github.com/aurelja@red/shuttr
+*/
 *:before, *:after { box-sizing: border-box }
 html, body {
     margin: 0;
     width: 100%;
     height: 100%;
     background: black;
-    //overflow: hidden;
 }
 
 .deadcenter {
@@ -16,141 +20,195 @@ html, body {
     width: 100%;
     height: 100%;
 }
-.windowhandle {
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-app-region: drag;
-}
+
+@yellow: #f8c932;
+@red:    #ff1633;
 
 body {
-    * { outline: none }
+    * {
+        outline: none;
+        -webkit-user-select: none;
+        user-select: none;
+    }
     
     // text styles
-    h1, h2, h3, h4, h5, h6, p, li, td, span {
+    h1, h2, h3, h4, h5, h6, p, li, td, span, button {
         color: white;
-        font-family: 'DIN';
+        font-family: 'Overpass', 'Roboto', 'Helvetica Neue', sans-serif;
     }
 
-    #controls {
-        position: relative;
-        z-index: 3;
-    }
-    #viewfinder {
-        opacity: 0;
-        //position: fixed;
-        //top: 0;
-        //left: 0;
-        //z-index: 1;
-        //.fullscreen;
-        //.deadcenter;
-        width: 100%;
-        height: 100%;
-        background: url('../img/viewfinder.png') no-repeat;
-        background-size: cover;
-        background-attachment: fixed;
-        iframe { border: none }
-    }
-    #triggers {
-        position: fixed;
-        z-index: 20;
-        top: 0;
-        right: 0;
-        height: 2.5rem;
-        & > div {
-            height: 2.5rem;
-            display: inline-flex;
-            float: left;
-        }
-        #buttons {
-            button {
-                padding: 0 15px;
-                vertical-align: -webkit-baseline-middle;
-                font-size: .8rem;
-                font-weight: bold;
-                color: black;
-                text-transform: uppercase;
-                border: none;
-                &#sys_pwr { background: #2cd14e }
-                &#sys_pwr:hover { background: #219838 }
-                &#sys_trigger { background: #fff }
-                &#sys_trigger:hover { background: #ddd }
-            }
-        }
-        #led {
-            width: 10px;
-            background: #222;
-            &.busy {
-                background: red;
-                box-shadow-color: red;
-            }
-        }
-    }
-    #intro {
-        position: fixed;
-        z-index: 10;
-        top: 0;
-        left: 0;
-        .deadcenter;
-        .fullscreen;
-
-        img { width: 200px }
-    }
-    .hud {
-        .windowhandle;
-        position: fixed;
-        z-index: 5;
-        left: 0;
-        position: absolute;
-        width: 100%;
-        background: rgba(0,0,0,0.3);
-        transition: margin 1s cubic-bezier(0,0,.2,.89);
-
-        &#top {
-            top: 0;
-            height: 2.5rem;
-            .deadcenter;
-
-            p {
-                margin: 0;
-                text-transform: uppercase;
-                font-size: .75rem;
-                color: #ddd;
-
-                span {
-                    font-size: 1.25rem;
-                    color: white;
-                    text-transform: none;
-                    margin: 0 .5rem 0 .25rem;
-                    font-weight: bold;
-                }
-            }
-        }
-        &#bottom {
-            bottom: 0;
-            height: 5rem;
-        }
-        &.hidden {
-            &#top { margin-top: -6rem }
-            &#bottom { margin-bottom: -6rem }
-        }
-    }
-}
-
-body.darwin {
-    #top { top: 2.5rem !important }
     #titlebar {
-        .windowhandle;
+        -webkit-app-region: drag;
         position: fixed;
         z-index: 15;
         top: 0;
         left: 0;
         width: 100%;
         height: 2.5rem;
-        background: rgba(0,0,0,0.3);
+        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0));
         .deadcenter;
+
+        & > div {
+            display: inline-block;
+            margin-right: .5rem;
+
+            p {
+                text-transform: uppercase;
+                font-size: .9rem;
+                font-weight: 700;
+
+                &#stat_bat > i { margin-right: .5rem }
+            }
+            .material-icons {
+                margin-right: .75rem;
+                margin-top: -2px;
+                font-size: 1.25rem;
+            }
+        }
     }
-    &.fullscreen {
-        #titlebar { display: none }
-        #top { top: 0 !important }
+
+    #controls {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 3;
+        width: 100%;
+        height: 50px;
+        background: #1e1e1e;
+
+        & > div {
+            display: inline-flex;
+            float: left;
+            height: 100%;
+
+            &.left { width: ~"calc(100% - 150px)" }
+            &.right { width: 150px }
+        }
+        .left {
+            height: 100%;
+            align-items: center;
+            justify-content: flex-start;
+            table {
+                margin: 0 .5rem;
+
+                td {
+                    font-size: .75rem;
+                    line-height: 1rem;
+                    text-transform: uppercase;
+                    padding-right: .7rem;
+
+                    span {
+                        color: @yellow;
+                        font-weight: 700;
+                        cursor: pointer;
+                    }
+                }
+            }
+        }
+        .right {
+            & > div {
+                display: inline-flex;
+            }
+            #duration {
+                margin: 0 .5rem;
+                width: 80px;
+                height: 100%;
+                align-items: center;
+                justify-content: flex-end;
+
+                p {
+                    margin: 0;
+                    width: 100%;
+                    color: @red;
+                    text-align: right;
+                    font-weight: 300;
+                    font-size: 1.25rem;
+                }
+            }
+            #shutter {
+                height: 50px;
+                align-items: center;
+                justify-content: center;
+                float: right;
+                margin: 0 .5rem;
+                cursor: pointer;
+
+                .shutter {
+                    height: 1.75rem;
+                    width: 1.75rem;
+                    border: 3px solid @red;
+                    border-radius: 50%;
+                    transition: border-radius 250ms ease 0ms, background 100ms ease 100ms;
+
+                    &.rolling {
+                        border-radius: 5px;
+                        background: @red;
+                    }
+                }
+
+                &:hover {
+                    .shutter {
+                        background: @red;
+                        transition: none;
+                        transition-delay: 0;
+                    }
+                }
+            }
+        }
     }
+
+    #viewfinder {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1;
+        .fullscreen;
+        .deadcenter;
+        width: 100%;
+        height: ~"calc(100% - 50px)";
+
+        iframe { border: none }
+        & > div {
+            text-align: center;
+
+            button {
+                background: none;
+                border: none;
+                border-radius: 3px;
+                text-transform: uppercase;
+                color: @yellow;
+                font-weight: bold;
+                font-size: 1rem;
+                margin: 1rem auto;
+                display: block;
+                cursor: pointer;
+            }
+        }
+    }
+
+    #triggers {
+        position: fixed;
+        z-index: 20;
+        top: 0;
+        right: 0;
+        height: 2.5rem;
+
+        & > div {
+            display: inline-flex;
+            float: left;
+            width: 40px;
+            height: 40px;
+            align-items: center;
+            justify-content: center;
+
+            p { margin: 0 }
+            i { color: black }
+            &#mode { background: @yellow }
+            &#pwr { background: @red }
+        }
+    }
+}
+
+body.darwin {
+
 }

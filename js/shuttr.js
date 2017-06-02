@@ -43,11 +43,12 @@ var platform = {
 var ping = null;
 var Shuttr = {
     init: function() {
+        // TODO
+        // Try to see if host is reachable
+
+
         ping = window.setInterval(() => {
-            get('/status', null, (data) => {
-                Shuttr.status.current = JSON.parse(data).status;
-                Shuttr.settings.current = JSON.parse(data).settings;
-            });
+            
         }, 1000);
     },
     settings: {

@@ -17,6 +17,8 @@ function createWindow() {
     win = new BrowserWindow({
       width: 800,
       height: 600,
+      minWidth: 800,
+      minHeight: 600,
       frame: false,
       titleBarStyle: 'hidden-inset',
       backgroundColor: '#000',

@@ -23,14 +23,6 @@ globalWin.on('leave-full-screen', (e) => {
     $('body').removeClass('fullscreen');
 });
 
-// Loader
-$(function(){
-    fn.init();
-    window.setTimeout(() => { $('#intro').fadeOut() }, 500);
-    window.setTimeout(() => { $('.hud').removeClass('hidden') }, 1000);
-    window.setTimeout(() => { $('#viewfinder').animate({opacity: '1'}) }, 2000);
-})
-
 // Buttons
 var bindToButton = function(id, fn) { $('#' + id).click(fn) }
 $(function(){

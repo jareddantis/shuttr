@@ -8,69 +8,81 @@
     <head>
         <meta charset="UTF-8">
         <title>shuttr</title>
+        <link rel="stylesheet" type="text/css" href="font/overpass.css">
+        <link rel="stylesheet" type="text/css" href="iconfont/material-icons.css">
         <link rel="stylesheet" type="text/css" href="css/style.css">
+        <meta name="charset" content="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, shrink-to-fit=no">
     </head>
     <body>
-        <div id="triggers">
-            <div id="buttons">
-                <button type="button" id="sys_pwr">power</button>
-                <button type="button" id="sys_trigger">fire</button>
-            </div>
-            <div id="led"></div>
-        </div>
+        <!-- Top bar (draggable) -->
         <div id="titlebar">
-            <p>shuttr</p>
+            <!-- Status: resolution settings, remaining space, and battery -->
+            <div>
+                <p><i class="material-icons">camera</i><span id="stat_res">1080p</span> <span id="stat_fps">30fps</span> <span id="stat_fov">supr</span></p>
+            </div>
+            <div>
+                <p id="stat_sd"><i class="material-icons">sd_storage</i>30h 39m</p>
+            </div>
+            <div>
+                <p id="stat_bat"><i class="material-icons">battery_std</i>100%</p>
+            </div>
         </div>
 
-        <div id="intro">
-            <img src="img/loading.gif" alt="">
+        <!-- Top bar overlay -->
+        <div id="triggers">
+            <!-- Power button and mode changer -->
+            <div id="mode">
+                <p><i class="material-icons">camera_alt</i></p>
+            </div>
+            <div id="pwr">
+                <p><i class="material-icons">power_settings_new</i></p>
+            </div>
         </div>
 
-        <div id="viewfinder"></div>
-
+        <!-- Bottom bar -->
         <div id="controls">
-            <h2>Viewfinder</h2>
-            <button type="button" id="vf_open">Open connection</button>
-            <button type="button" id="vf_play">Spawn viewer</button>
-            <button type="button" id="vf_close">Close connection</button>
-            <div id="viewfinder"></div>
-
-            <h2>Power controls</h2>
-            <button type="button" id="sys_pwr_off">Power off GoPro</button>
-            <button type="button" id="sys_pwr_on">Power on GoPro</button>
-
-            <h2>Heartbeat</h2>
-            <button type="button" id="sys_getstatus">Ping</button>
-            <button type="button" id="sys_clrstatus">Clear</button>
-            <h4>Status</h4>
-            <p style="font-family: 'Courier New'" id="status"></p>
-            <h4>Settings</h4>
-            <p style="font-family: 'Courier New'" id="settings"></p>
-
-            <h2>Take a picture</h2>
-            <button type="button" id="sys_trigger">Click!</button>
-            <button type="button" id="sys_stop_rec">Stop recording</button>
-
-            <h2>Switch modes</h2>
-            <button type="button" id="mode_video_normal">Video mode</button>
-            <button type="button" id="mode_video_timelapse">Timelapse video mode</button>
-            <button type="button" id="mode_video_vphoto">Video + Photo mode</button>
-            <button type="button" id="mode_video_looping">Looping Video mode</button><br/>
-            <button type="button" id="mode_photo_normal">Photo mode</button>
-            <button type="button" id="mode_photo_cont">Continuous photo mode</button>
-            <button type="button" id="mode_photo_night">Night photo mode</button><br/>
-            <button type="button" id="mode_multi_burst">Burst mode</button>
-            <button type="button" id="mode_multi_timelapse">Timelapse mode</button>
-            <button type="button" id="mode_multi_nightlapse">Nightlapse mode</button>
+            <!-- Protune settings and shutter button -->
+            <div class="left">
+                <table>
+                    <tr>
+                        <td>protune <span id="set_pro">on</span></td>
+                        <td>color <span id="set_color">gopro</span></td>
+                        <td>iso <span id="set_iso">1600</span></td>
+                        <td>ev <span id="set_ev">+1.0</span></td>
+                        <td>stabilizer <span id="set_stab">on</span></td>
+                        <td>audio mode <span id="set_stab">wind</span></td>
+                    </tr>
+                    <tr>
+                        <td>wb <span id="set_wb">auto</span></td>
+                        <td>shtr <span id="set_shut">1/60</span></td>
+                        <td>sharp <span id="set_shrp">hi</span></td>
+                        <td>raw audio <span id="set_ev">hi</span></td>
+                        <td>auto lo lt <span id="set_lolt">off</span></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="right">
+                <div id="duration">
+                    <p>00:03</p>
+                </div>
+                <div id="shutter">
+                    <div class="shutter"></div>
+                </div>
+            </div>
         </div>
 
-        <div class="hud hidden" id="top">
-            <p>batt <span id="hud_batt">100%</span> remaining <span id="hud_remaining">0h 0m</span></p>
-        </div>
-        <div class="hud hidden" id="bottom">
-            <h1>helo</h1>
+        <!-- Viewfinder iframe -->
+        <div id="viewfinder">
+            <div>
+                <h1>Viewfinder unavailable</h1>
+                <p>Make sure that you are connected to your camera via Wi-Fi.</p>
+
+                <button type="button">Retry</button>
+            </div>
         </div>
 
+        <!-- Scripts -->
         <script src="js/shuttr.ui.js"></script>
     </body>
 </html>
