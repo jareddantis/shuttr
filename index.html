@@ -19,13 +19,16 @@
         <div id="titlebar">
             <!-- Status: resolution settings, remaining space, and battery -->
             <div>
-                <p><i class="material-icons">camera</i><span id="stat_res">1080p</span> <span id="stat_fps">30fps</span> <span id="stat_fov">supr</span></p>
+                <p><span id="stat_mode">video</span> mode</p>
             </div>
             <div>
-                <p id="stat_sd"><i class="material-icons">sd_storage</i>30h 39m</p>
+                <p><i class="material-icons">camera</i><span id="stat_res">-</span> <span id="stat_fps">-</span> <span id="stat_fov">-</span></p>
             </div>
             <div>
-                <p id="stat_bat"><i class="material-icons">battery_std</i>100%</p>
+                <p id="stat_sd"><i class="material-icons">sd_storage</i>- -</p>
+            </div>
+            <div>
+                <p id="stat_bat"><i class="material-icons">battery_std</i>-</p>
             </div>
         </div>
 
@@ -34,6 +37,24 @@
             <!-- Power button and mode changer -->
             <div id="mode">
                 <p><i class="material-icons">camera_alt</i></p>
+
+                <!-- Mode dropdown -->
+                <div id="modeselect">
+                    <div class="dropOut">
+                        <div class="triangle"></div>
+                        <ul>
+                            <li id="mode_video_normal">video</li>
+                            <li id="mode_video_vphoto">video + photo</li>
+                            <li id="mode_video_looping">looping video</li>
+                            <li id="mode_photo_normal">photo</li>
+                            <li id="mode_photo_night">night photo</li>
+                            <li id="mode_multi_burst">burst</li>
+                            <li id="mode_video_timelapse">time lapse video</li>
+                            <li id="mode_multi_timelapse">time lapse photo</li>
+                            <li id="mode_multi_nightlapse">night lapse photo</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
             <div id="pwr">
                 <p><i class="material-icons">power_settings_new</i></p>
@@ -44,27 +65,28 @@
         <div id="controls">
             <!-- Protune settings and shutter button -->
             <div class="left">
-                <table>
+                <table class="video">
                     <tr>
                         <td>protune <span id="set_pro">on</span></td>
-                        <td>color <span id="set_color">gopro</span></td>
-                        <td>iso <span id="set_iso">1600</span></td>
-                        <td>ev <span id="set_ev">+1.0</span></td>
+                        <td class="pt">color <span id="set_color">gopro</span></td>
+                        <td class="pt">iso <span id="set_iso">1600</span></td>
+                        <td class="pt">ev <span id="set_ev">+1.0</span></td>
                         <td>stabilizer <span id="set_stab">on</span></td>
-                        <td>audio mode <span id="set_stab">wind</span></td>
+                        <td>audio mode <span id="set_aud">wind</span></td>
                     </tr>
                     <tr>
-                        <td>wb <span id="set_wb">auto</span></td>
-                        <td>shtr <span id="set_shut">1/60</span></td>
-                        <td>sharp <span id="set_shrp">hi</span></td>
-                        <td>raw audio <span id="set_ev">hi</span></td>
+                        <td class="pt">wb <span id="set_wb">auto</span></td>
+                        <td class="pt">shtr <span id="set_shut">1/60</span></td>
+                        <td class="pt">sharp <span id="set_shrp">hi</span></td>
+                        <td class="pt">raw audio <span id="set_rawaud">hi</span></td>
                         <td>auto lo lt <span id="set_lolt">off</span></td>
+                        <td>grid <span id="set_grid">off</span></td>
                     </tr>
                 </table>
             </div>
             <div class="right">
                 <div id="duration">
-                    <p>00:03</p>
+                    <p></p>
                 </div>
                 <div id="shutter">
                     <div class="shutter"></div>
@@ -74,15 +96,55 @@
 
         <!-- Viewfinder iframe -->
         <div id="viewfinder">
-            <div>
-                <h1>Viewfinder unavailable</h1>
-                <p>Make sure that you are connected to your camera via Wi-Fi.</p>
+            <div id="messages">
+                <div id="msg_con" class="message">
+                    <h1 class="icon normal"><i class="material-icons">linked_camera</i></h1>
+                    <h1 class="conStat">Connecting to camera</h1>
+                </div>
+                <div id="msg_err" class="message">
+                    <h1 class="icon error"><i class="material-icons">error</i></h1>
+                    <h1 class="errTitle"></h1>
+                    <p class="errBody"></p>
 
-                <button type="button">Retry</button>
+                    <button type="button">Retry</button>
+                </div>
+            </div>
+            <div id="overlays" class="hidden">
+                <div class="thirdgrid hidden">
+                    <table>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="quadgrid hidden">
+                    <table>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                    </table>
+                </div>
             </div>
         </div>
 
         <!-- Scripts -->
-        <script src="js/shuttr.ui.js"></script>
+        <script src="js/ui.js"></script>
     </body>
 </html>

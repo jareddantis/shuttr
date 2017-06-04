@@ -6,66 +6,65 @@
 
 const $ = require('jquery');
 const fn = require('./shuttr');
+const http = require('http');
+const ping = require('ping');
 
 var oldStatus = null, oldSettings = null, handle = null;
-var debug = {
-    clearStatus: function() {
-        clearInterval(handle);
-        handle = null;
-        oldSettings = null;
-        oldStatus = null;
-        $('#status').empty();
-        $('#settings').empty();
+var opts = { host: '10.5.5.9', path: '/gp/gpControl/status' };
+var counts = 0;
+var delay = 2000;
+var beacon = null;
+
+var heartbeat = {
+    test: function() {
+        http.get({
+            host: '10.5.5.9', 
+            port: '80' 
+        }, function(res) {
+            console.log("success", res);
+        }).on("error", function(e) {
+            console.log("failure", e);
+        });
     },
-    parseStatus: function() {
-        if (handle === null) {
-            handle = window.setInterval(function() {
-                fn.system.getStatus(function(data){
-                    var { status, settings } = JSON.parse(data);
-                    $('#status').empty();
-                    $('#settings').empty();
-
-                    // Current system time
-                    var timeArr = status[40].slice(1).split('%');
-                    for (var i = 0; i < timeArr.length; i++)
-                        timeArr[i] = (parseInt(timeArr[i], 16) < 10) ? '0' + parseInt(timeArr[i], 16) : parseInt(timeArr[i], 16);
-                    status[40] = status[40] + " (" + timeArr.join('/') + ")";
-
-                    // Compare old and new status
-                    if (oldStatus == null) {
-                        oldStatus = status;
-                        for (var key in oldStatus) {
-                            var oldContent = $('#status').html();
-                            $('#status').html(oldContent + ", " + key + " = " + status[key]);
-                        }
-                    } else {
-                        for (var key in status) {
-                            var oldContent = $('#status').html();
-                            if (oldStatus.hasOwnProperty(key) && status[key] != oldStatus[key])
-                                $("#status").html(oldContent + ", <strong>" + key + " = " + status[key] + "</strong>");
-                            else
-                                $("#status").html(oldContent + ", " + key + " = " + status[key]);
-                        }
-                    }
-                    if (oldSettings == null) {
-                        oldSettings = settings;
-                        for (var key in oldSettings) {
-                            var oldContent = $('#settings').html();
-                            $('#settings').html(oldContent + ", " + key + " = " + settings[key]);
-                        }
-                    } else {
-                        for (var key in settings) {
-                            var oldContent = $('#settings').html();
-                            if (oldSettings.hasOwnProperty(key) && settings[key] != oldSettings[key])
-                                $("#settings").html(oldContent + ", <strong>" + key + " = " + settings[key] + "</strong>");
-                            else
-                                $("#settings").html(oldContent + ", " + key + " = " + settings[key]);
-                        }
-                    }
+    start: function(cb) {
+        var isAlive = false;
+        var beat = function() {
+            http.request(opts, (res) => {
+                response = "";
+                res.on('data', (chunk) => { response += chunk });
+                res.on('end', function(){
+                    var data = JSON.parse(response);
+                    heartbeat.currentStatus = data.status;
+                    heartbeat.currentSettings = data.settings;
+                    isAlive = true;
                 });
-            }, 500);
-        }
+            }).end();
+        };
+        var response = "";
+        
+        console.log("[heartbeat] Checking if host is reachable");
+        beat();
+        window.setTimeout(function(){
+            if (isAlive) {
+                console.log("[heartbeat] Host is reachable, starting regular ping");
+                beacon = window.setInterval(beat, 1000);
+            } else
+                console.log("[heartbeat] Host http://10.5.5.9/ is unreachable");
+            cb(isAlive);
+        }, 5000);
+    },
+    restart: function(err){
+        counts = 0;
+        this.start(err);
+    },
+    currentStatus: {},
+    currentSettings: {},
+    const: require('./constants').HeroFive.status,
+    get: function(id) {
+        var key = this.const[id];
+        var value = this.currentStatus[key];
+        return value;
     }
 }
 
-module.exports = debug;
+module.exports = heartbeat;

@@ -7,6 +7,7 @@
 const http = require('http');
 const wol = require('node-wol');
 const vf = require('./viewfinder');
+const heartbeat = require('./heartbeat');
 const exec = require('child_process').execSync;
 
 var handler = null;
@@ -42,28 +43,34 @@ var platform = {
 
 var ping = null;
 var Shuttr = {
-    init: function() {
-        // TODO
-        // Try to see if host is reachable
-
-
-        ping = window.setInterval(() => {
-            
-        }, 1000);
-    },
-    settings: {
-        current: {},
-    },
-    status: {
-        current: {},
-        const: require('./constants').HeroFive.status,
-        internalBattPercent: () => { return this.current.status[this.const.INTERNAL_BATT_PERCENT] },
-        availableSpace: () => { return this.current.status[this.const.AVAILABLE_SPACE] }
+    init: function(proceed,error) {
+        console.log("[shuttr] Starting up");
+        heartbeat.start(function(isAlive) {
+            if (isAlive)
+                proceed();
+            else
+                error();
+        });
     },
     controls: {
+        vf_init: function() {
+            var that = Shuttr.controls;
+            // Close any currently open handles
+            vf.close();
+            // then open a new one
+            that.vf_open();
+            that.vf_play();
+        },
         vf_open: function() {
-            vf.open((dgramClient) => {
-                handler = window.setInterval(vf.keepAlive, 2500);
+            // Set stream size to 1280x720
+            get("/setting/64/7", null, function(){
+                // Set stream bitrate to 2.4MB/s
+                get("/setting/62/2400000", null, function(){
+                    // Open viewfinder
+                    vf.open((dgramClient) => {
+                        handler = window.setInterval(vf.keepAlive, 2500);
+                    });
+                });
             });
         },
         vf_play: function() {
@@ -74,8 +81,8 @@ var Shuttr = {
                 // Create iframe
                 let iframe = document.createElement('iframe');
                 iframe.src = 'http://127.0.0.1:2000/out';
-                iframe.width = '800px';
-                iframe.height = '600px';
+                iframe.width = '100%';
+                iframe.height = '100%';
                 document.querySelector('#viewfinder').appendChild(iframe);
 
                 console.log("[viewfinder] iframe created");
@@ -91,11 +98,12 @@ var Shuttr = {
     },
     power: {
         off: function() { command('/system/sleep') },
-        on: function() {
+        on: function(cb) {
             wol.wake(platform.detect().getBssid(), {
                 address: '10.5.5.9',
                 port: 9
             }, (e) => {
+                cb(e);
                 if (e !== undefined)
                     console.log(e)
             });

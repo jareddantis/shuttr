@@ -96,7 +96,8 @@ var viewfinder = {
                 "-i", "udp://" + GOPRO_IP + ":" + GOPRO_PORT,
                 "-f", "mpeg1video",
                 "-s", "800x600",
-                "-b", "1000k",
+                "-g", "60",
+                "-maxrate", "5000k",
                 "-r", "30",
                 "http://127.0.0.1:2000/in"
             ])
@@ -120,7 +121,8 @@ var viewfinder = {
     keepAlive: function() {
         var msg = Buffer.from('_GPHD_:0:0:2:0.000000\n');
         client.send(msg, GOPRO_PORT, GOPRO_IP, (e) => {
-            if (e !== null) console.log(e)
+            if (e !== null)
+                console.log("[viewfinder] error sending keepalive: " + e);
         });
     }
 }
