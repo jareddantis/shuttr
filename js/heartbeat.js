@@ -4,6 +4,10 @@
     http://github.com/aureljared/shuttr
 */
 
+// Logging
+const l = require('./logger').log;
+var log = function(msg) { l('heartbeat', msg) };
+
 const $ = require('jquery');
 const fn = require('./shuttr');
 const http = require('http');
@@ -21,12 +25,12 @@ var heartbeat = {
             host: '10.5.5.9', 
             port: '80' 
         }, function(res) {
-            console.log("success", res);
+            log("success", res);
         }).on("error", function(e) {
-            console.log("failure", e);
+            log("failure", e);
         });
     },
-    start: function(cb) {
+    start: function(callback, beatlistener) {
         var isAlive = false;
         var beat = function() {
             http.request(opts, (res) => {
@@ -34,31 +38,28 @@ var heartbeat = {
                 res.on('data', (chunk) => { response += chunk });
                 res.on('end', function(){
                     var data = JSON.parse(response);
-                    heartbeat.currentStatus = data.status;
-                    heartbeat.currentSettings = data.settings;
                     isAlive = true;
+                    beatlistener(data);
                 });
             }).end();
         };
         var response = "";
         
-        console.log("[heartbeat] Checking if host is reachable");
+        log("Checking if host is reachable");
         beat();
         window.setTimeout(function(){
             if (isAlive) {
-                console.log("[heartbeat] Host is reachable, starting regular ping");
+                log("Host is reachable, starting regular ping");
                 beacon = window.setInterval(beat, 1000);
             } else
-                console.log("[heartbeat] Host http://10.5.5.9/ is unreachable");
-            cb(isAlive);
+                log("Host http://10.5.5.9/ is unreachable");
+            callback(isAlive);
         }, 5000);
     },
     restart: function(err){
         counts = 0;
         this.start(err);
     },
-    currentStatus: {},
-    currentSettings: {},
     const: require('./constants').HeroFive.status,
     get: function(id) {
         var key = this.const[id];

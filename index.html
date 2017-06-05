@@ -18,11 +18,29 @@
         <!-- Top bar (draggable) -->
         <div id="titlebar">
             <!-- Status: resolution settings, remaining space, and battery -->
-            <div>
+            <div class="modeselect">
                 <p><span id="stat_mode">video</span> mode</p>
+
+                <!-- Mode dropdown -->
+                <div id="modeselect">
+                    <div class="dropOut">
+                        <div class="triangle"></div>
+                        <ul>
+                            <li id="mode_video_normal">video</li>
+                            <li id="mode_video_vphoto">video + photo</li>
+                            <li id="mode_video_looping">looping video</li>
+                            <li id="mode_photo_normal">photo</li>
+                            <li id="mode_photo_night">night photo</li>
+                            <li id="mode_multi_burst">burst</li>
+                            <li id="mode_video_timelapse">time lapse video</li>
+                            <li id="mode_multi_timelapse">time lapse photo</li>
+                            <li id="mode_multi_nightlapse">night lapse photo</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
             <div class="resselect">
-                <p><i class="material-icons">camera</i><span id="stat_res">-</span> <span id="stat_fps">-</span> <span id="stat_fov">-</span></p>
+                <p><i class="material-icons">camera</i><span id="stat_res">4k</span> <span id="stat_fps">24fps</span> <span id="stat_fov">supr</span></p>
 
                 <div id="resselect" class="hoverdropdown">
                     <div class="dropOut">
@@ -48,51 +66,27 @@
 
                             <p>fov</p>
                             <select name="fov">
-                                <option value="3">Superview</option>
+                                <option value="3" disabled>Superview</option>
                                 <option value="0">Wide</option>
-                                <option value="1">Medium</option>
-                                <option value="2">Narrow</option>
-                                <option value="4">Linear</option>
+                                <option value="1" disabled>Medium</option>
+                                <option value="2" disabled>Narrow</option>
+                                <option value="4" disabled>Linear</option>
                             </select>
                         </div>
                     </div>
                 </div>
             </div>
             <div>
-                <p id="stat_sd"><i class="material-icons">sd_storage</i>- -</p>
+                <p id="stat_sd"><i class="material-icons">sd_storage</i>00h 00m</p>
             </div>
             <div>
-                <p id="stat_bat"><i class="material-icons">battery_std</i>-</p>
+                <p id="stat_bat"><i class="material-icons">battery_std</i>100%</p>
             </div>
         </div>
 
         <!-- Top bar overlay -->
-        <div id="triggers">
-            <!-- Power button and mode changer -->
-            <div id="mode">
-                <p><i class="material-icons">camera_alt</i></p>
-
-                <!-- Mode dropdown -->
-                <div id="modeselect">
-                    <div class="dropOut">
-                        <div class="triangle"></div>
-                        <ul>
-                            <li id="mode_video_normal">video</li>
-                            <li id="mode_video_vphoto">video + photo</li>
-                            <li id="mode_video_looping">looping video</li>
-                            <li id="mode_photo_normal">photo</li>
-                            <li id="mode_photo_night">night photo</li>
-                            <li id="mode_multi_burst">burst</li>
-                            <li id="mode_video_timelapse">time lapse video</li>
-                            <li id="mode_multi_timelapse">time lapse photo</li>
-                            <li id="mode_multi_nightlapse">night lapse photo</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div id="pwr">
-                <p><i class="material-icons">power_settings_new</i></p>
-            </div>
+        <div id="pwr">
+            <p><i class="material-icons">power_settings_new</i></p>
         </div>
 
         <!-- Bottom bar -->
@@ -105,7 +99,7 @@
                         <td class="pt">color <span id="set_color">gopro</span></td>
                         <td class="pt">iso <span id="set_iso">1600</span></td>
                         <td class="pt">ev <span id="set_ev">+1.0</span></td>
-                        <td>stabilizer <span id="set_stab">on</span></td>
+                        <td>stabilizer <span id="set_stab">off</span></td>
                         <td>audio mode <span id="set_aud">wind</span></td>
                     </tr>
                     <tr>

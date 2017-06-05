@@ -4,6 +4,10 @@
     http://github.com/aureljared/shuttr
 */
 
+// Logging
+const l = require('./logger').log;
+var log = function(msg) { l('shuttr', msg) };
+
 const http = require('http');
 const wol = require('node-wol');
 const vf = require('./viewfinder');
@@ -43,15 +47,15 @@ var platform = {
 
 var ping = null, model = null;
 var Shuttr = {
-    init: function(m,p,e) {
-        console.log("[shuttr] Starting up");
+    init: function(m, p, e, b) {
+        log("Starting up");
         model = m;
         heartbeat.start(function(isAlive) {
             if (isAlive)
                 p();
             else
                 e();
-        });
+        }, b);
     },
     command: function(cmd, data) {
         this.get('/command' + cmd, data);
@@ -72,7 +76,6 @@ var Shuttr = {
         }
 
         var opts = { host: host, path: path };
-        console.log(opts);
         http.request(opts, (res) => {
             res.on('data', (chunk) => { response += chunk });
             res.on('end', function(){
@@ -114,7 +117,7 @@ var Shuttr = {
                 iframe.height = '100%';
                 document.querySelector('#viewfinder').appendChild(iframe);
 
-                console.log("[viewfinder] iframe created");
+                log("iframe created");
             }
         },
         vf_close: function() {
@@ -134,7 +137,7 @@ var Shuttr = {
             }, (e) => {
                 cb(e);
                 if (e !== undefined)
-                    console.log(e)
+                    log(e)
             });
         }
     },

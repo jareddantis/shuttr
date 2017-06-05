@@ -4,6 +4,10 @@
     http://github.com/aureljared/shuttr
 */
 
+// Logging
+const l = require('./logger').log;
+var log = function(msg) { l('vf', msg) };
+
 const http = require('http');
 const dgram = require('dgram');
 const client = dgram.createSocket('udp4');
@@ -29,11 +33,11 @@ else if (process.platform == 'win32') {
     else
         ffbin += 'ffmpeg-win32.exe';
 } else
-    console.error("[viewfinder] Only Mac and Windows are supported, sorry");
+    console.error("Only Mac and Windows are supported, sorry");
 
 var viewfinder = {
     open: function(callback){
-        console.log('[viewfinder] opening');
+        log('opening');
         if (typeof callback !== "function")
             console.error("viewfinder.open() requires a callback");
         http.request({
@@ -56,7 +60,7 @@ var viewfinder = {
         // Adapted from @citolen's goproh4 project
         // Create a WebSocket to handle connections
         websocket.on('connection', (socket) => {
-            console.log("[viewfinder] socket connected");
+            log("socket connected");
 
             let header = new Buffer(8);
             header.write('jsmp');
@@ -65,7 +69,7 @@ var viewfinder = {
             socket.send(header, { binary: true });
 
             socket.on('close', (e, m) => {
-                console.log("[viewfinder] socket disconnected with e = " + e + ", m = \"" + m + "\"");
+                log("socket disconnected with e = " + e + ", m = \"" + m + "\"");
             })
         })
         websocket.broadcast = (d,o) => {
@@ -73,13 +77,13 @@ var viewfinder = {
                 if (client.readyState == ws.OPEN)
                     client.send(d,o);
                 else
-                    console.error("[viewfinder] client " + client + " not connected (readyState = " + client.readyState + ")");
+                    console.error("client " + client + " not connected (readyState = " + client.readyState + ")");
             });
         }
 
         // Route incoming and outgoing data using Express
         server.post("/in", (req, res) => {
-            console.log("[viewfinder] stream connected @ " + req.socket.remoteAddress + ":" + req.socket.remotePort);
+            log("stream connected @ " + req.socket.remoteAddress + ":" + req.socket.remotePort);
             req.socket.setTimeout(0);
             req.on('data', (data) => {
                 websocket.broadcast(data, {binary: true});
@@ -104,7 +108,7 @@ var viewfinder = {
             ffmpeg.stdout.pipe(process.stdout)
             ffmpeg.stderr.pipe(process.stdout)
             ffmpeg.on('exit', (e) => {
-                console.log("[viewfinder] ffmpeg process ended with code " + e);
+                log("ffmpeg process ended with code " + e);
             })
             return ffmpeg;
         }
@@ -119,7 +123,7 @@ var viewfinder = {
         var msg = Buffer.from('_GPHD_:0:0:2:0.000000\n');
         client.send(msg, GOPRO_PORT, GOPRO_IP, (e) => {
             if (e !== null)
-                console.log("[viewfinder] error sending keepalive: " + e);
+                log("error sending keepalive: " + e);
         });
     }
 }

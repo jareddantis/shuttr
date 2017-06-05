@@ -20,6 +20,42 @@ html, body {
     width: 100%;
     height: 100%;
 }
+.hoverdropdown {
+    position: absolute;
+    z-index: 99;
+    left: 50%;
+    top: -400px;
+
+    & > div {
+        background: #fff;
+        float: left;
+        position: relative;
+        margin-top: 0px;
+        opacity: 0;
+        -webkit-transition: all .1s ease-out;
+        -moz-transition: all .1s ease-out;
+        -ms-transition: all .1s ease-out;
+        -o-transition: all .1s ease-out;
+        transition: all .1s ease-out;
+        .deadcenter;
+
+        & > div {
+            margin: 1rem 0;
+
+            &.triangle {
+                width: 0;
+                height: 0;
+                position: absolute;
+                border-left: 8px solid transparent;
+                border-right: 8px solid transparent;
+                border-bottom: 8px solid white;
+                top: -8px;
+                left: 50%;
+                margin: 0 0 0 -5px;
+            }
+        }
+    }
+}
 
 @yellow: #f8c932;
 @red:    #ff1633;
@@ -43,10 +79,12 @@ body {
         z-index: 15;
         top: 0;
         left: 0;
-        width: 100%;
+        width: ~"calc(100% - 40px)";
         height: 2.5rem;
         background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0));
-        .deadcenter;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
 
         & > div {
             display: inline-block;
@@ -64,61 +102,74 @@ body {
                 margin-top: -2px;
                 font-size: 1.25rem;
             }
+            &:last-child { margin-right: 1rem }
         }
 
-        .resselect:hover {
-            #resselect { top: 32px }
-            #resselect > div {
-                opacity: 1;
-                margin-top: 8px;
+        .modeselect {
+            #modeselect {
+                .hoverdropdown;
+                width: 175px;
+                margin-left: -75px;
+
+                & > div { width: 175px }
+                ul {
+                    float: left;
+                    padding: 0;
+                    list-style-type: none;
+                    width: 100%;
+                    text-align: center;
+                    margin: 0;
+
+                    li {
+                        cursor: pointer;
+                        font-weight: bold;
+                        text-transform: uppercase;
+                        font-size: .8rem;
+                        padding: .25rem 0;
+                        color: black;
+
+                        &:hover {
+                            background: #dab12e;
+                        }
+                    }
+                }
+            }
+
+            &:hover {
+                #modeselect { top: 32px }
+                #modeselect > div {
+                    opacity: 1;
+                    margin-top: 8px;
+                }
             }
         }
-        .hoverdropdown {
-            width: 175px;
-            position: absolute;
-            z-index: 99;
-            left: 50%;
-            margin-left: -160px;
-            top: -400px;
 
-            & > div {
-                width: 175px;
-                background: #fff;
-                float: left;
-                position: relative;
-                margin-top: 0px;
-                opacity: 0;
-                -webkit-transition: all .1s ease-out;
-                -moz-transition: all .1s ease-out;
-                -ms-transition: all .1s ease-out;
-                -o-transition: all .1s ease-out;
-                transition: all .1s ease-out;
-                .deadcenter;
+        .resselect {
+            #resselect {
+                .hoverdropdown;
+                width: 150px;
+                margin-left: 50px;
 
-                & > div {
-                    margin: 1rem 0;
+                & > div { width: 150px }
+                select {
+                    color: black;
+                    background: none;
+                    text-transform: uppercase;
+                    margin: .25rem 0 .75rem;
+                    width: 100%;
 
-                    &.triangle {
-                        width: 0;
-                        height: 0;
-                        position: absolute;
-                        border-left: 8px solid transparent;
-                        border-right: 8px solid transparent;
-                        border-bottom: 8px solid white;
-                        top: -8px;
-                        left: 50%;
-                        margin: 0 0 0 40px;
-                    }
-                    select {
-                        color: black;
-                        background: none;
-                        text-transform: uppercase;
-                        margin: .25rem 0;
-                    }
-                    p {
-                        color: black;
-                        margin: 0;
-                    }
+                    &:last-child { margin-bottom: .25rem }
+                }
+                p {
+                    color: black;
+                    margin: 0;
+                }
+            }
+            &:hover {
+                #resselect { top: 32px }
+                #resselect > div {
+                    opacity: 1;
+                    margin-top: 8px;
                 }
             }
         }
@@ -223,6 +274,7 @@ body {
     }
 
     #viewfinder {
+        -webkit-app-region: drag;
         position: fixed;
         top: 0;
         left: 0;
@@ -299,100 +351,27 @@ body {
         }
     }
 
-    #triggers {
+    #pwr {
         position: fixed;
         z-index: 20;
         top: 0;
         right: 0;
-        height: 2.5rem;
+        display: inline-flex;
+        float: left;
+        width: 40px;
+        height: 40px;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        background: @red;
+        border-bottom-left-radius: 5px;
 
-        #mode, #pwr {
-            display: inline-flex;
-            float: left;
-            width: 40px;
-            height: 40px;
-            align-items: center;
-            justify-content: center;
+        p { margin: 0 }
+        i {
+            color: black;
             cursor: pointer;
-
-            p { margin: 0 }
-            i { color: black }
         }
-
-        #mode {
-            background: @yellow;
-            &:hover {
-                background: #dab12e;
-
-                #modeselect { top: 32px }
-                #modeselect > div {
-                    opacity: 1;
-                    margin-top: 8px;
-                }
-            }
-        }
-        #pwr {
-            background: @red;
-            &:hover { background: #da132c }
-        }
-
-        #modeselect {
-            width: 175px;
-            position: absolute;
-            z-index: 99;
-            left: 50%;
-            margin-left: -160px;
-            top: -400px;
-
-            .triangle {
-                width: 0;
-                height: 0;
-                position: absolute;
-                border-left: 8px solid transparent;
-                border-right: 8px solid transparent;
-                border-bottom: 8px solid #1e1e1e;
-                top: -8px;
-                left: 50%;
-                margin-left: 45px;
-            }
-
-            & > div {
-                width: 175px;
-                background: #1e1e1e;
-                float: left;
-                position: relative;
-                margin-top: 0px;
-                opacity: 0;
-                border: 1px solid #dab12e;
-                -webkit-transition: all .1s ease-out;
-                -moz-transition: all .1s ease-out;
-                -ms-transition: all .1s ease-out;
-                -o-transition: all .1s ease-out;
-                transition: all .1s ease-out;
-                .deadcenter;
-
-                ul {
-                    float: left;
-                    padding: 0;
-                    list-style-type: none;
-                    width: 100%;
-                    text-align: center;
-                    margin: 0;
-
-                    li {
-                        text-transform: uppercase;
-                        font-size: .8rem;
-                        padding: .25rem 0;
-
-                        &:hover {
-                            background: #dab12e;
-                            color: #1e1e1e;
-                            font-weight: bold;
-                        }
-                    }
-                }
-            }
-        }
+        &:hover { background: #da132c }
     }
 }
 
