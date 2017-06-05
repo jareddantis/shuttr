@@ -47,22 +47,13 @@ var platform = {
 
 var ping = null, model = null;
 var Shuttr = {
-    init: function(m, p, e, b) {
+    init: function(newModel, proceed, error, beatListener) {
         log("Starting up");
-        model = m;
-        heartbeat.start(function(isAlive) {
-            if (isAlive)
-                p();
-            else
-                e();
-        }, b);
+        model = newModel;
+        heartbeat.start(proceed, error, beatListener);
     },
-    command: function(cmd, data) {
-        this.get('/command' + cmd, data);
-    },
-    set: function(key, value) {
-        this.get('/setting/' + key + '/' + value);
-    },
+    command: function(cmd, data) { this.get('/command' + cmd, data) },
+    set: function(key, value) { this.get('/setting/' + key + '/' + value) },
     get: function(loc, data, cb) {
         var host = '10.5.5.9',
             path = '/gp/gpControl' + loc,
@@ -85,13 +76,13 @@ var Shuttr = {
         }).end();
     },
     controls: {
-        vf_init: function() {
-            var that = Shuttr.controls;
+        vf_init: function(onReady) {
+            log("Initializing viewfinder");
             // Close any currently open handles
             vf.close();
             // then open a new one
-            that.vf_open();
-            that.vf_play();
+            this.vf_open();
+            this.vf_play(onReady);
         },
         vf_open: function() {
             // Set stream resolution to 1280x720
@@ -105,20 +96,13 @@ var Shuttr = {
                 });
             });
         },
-        vf_play: function() {
+        vf_play: function(onReady) {
             let viewfinder = vf.play();
             if (viewfinder.ready) {
                 child = viewfinder.transcoder;
-
-                // Create iframe
-                let iframe = document.createElement('iframe');
-                iframe.src = 'http://127.0.0.1:2000/out';
-                iframe.width = '100%';
-                iframe.height = '100%';
-                document.querySelector('#viewfinder').appendChild(iframe);
-
-                log("iframe created");
-            }
+                onReady();
+            } else
+                log("error: viewfinder failed to initialize");
         },
         vf_close: function() {
             window.clearInterval(handler);

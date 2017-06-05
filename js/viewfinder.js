@@ -92,21 +92,22 @@ var viewfinder = {
         server.use("/out", express.static(require('app-root-dir').get() + "/viewfinder"))
         server.listen(PREVIEW_PORT);
 
-        // Transcode H.264 UDP stream to MPEG2 format
+        // Transcode H.264 UDP stream to MPEG format
         const transcode = () => {
             let ffmpeg = spawn(ffbin, [
-                //"-loglevel", "16",
+                "-hide_banner",
+                "-loglevel", "panic",
                 "-f", "mpegts",
                 "-i", "udp://" + GOPRO_IP + ":" + GOPRO_PORT,
                 "-f", "mpeg1video",
                 "-s", "800x600",
                 "-g", "60",
-                "-probesize", "16384",
-                "-r", "30",
+                "-b:v", "7000k",
+                "-r", "29.97",
                 "http://127.0.0.1:2000/in"
             ])
-            ffmpeg.stdout.pipe(process.stdout)
-            ffmpeg.stderr.pipe(process.stdout)
+            ffmpeg.stdout.on('data', (d) => { l('ffmpeg', d) })
+            ffmpeg.stderr.on('data', (d) => { l('ffmpeg', d) })
             ffmpeg.on('exit', (e) => {
                 log("ffmpeg process ended with code " + e);
             })

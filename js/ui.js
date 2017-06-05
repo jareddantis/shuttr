@@ -12,6 +12,7 @@ const $ = require('jquery');
 const remote = require('electron').remote;
 const fn = require(__dirname + '/js/shuttr');
 const hb = require(__dirname + '/js/heartbeat');
+const ants = require(__dirname + '/js/constants');
 let model = "HeroFive";
 var mode = "video";
 
@@ -51,22 +52,44 @@ var prefs = {
 };
 
 // Update state from camera status
+var state = {};
 var refreshInfo = function(data) {
-    // var status = data.status, settings = data.settings;
-    // // Resolution, fps, fov
+    state = {
+        status: data.status,
+        settings: data.settings
+    };
+    // Resolution, fps, fov
     // $('select[name=res]').val(settings['2']).change();
     // $('select[name=fps]').val(settings['3']).change();
     // $('select[name=fov]').val(settings['4']).change();
-}
+};
+var query = {
+    status: function(id) {
+        var key = ants[model].status[id];
+        return state.status[key];
+    },
+    setting: function(category,id) {
+        var key = ants[model].settings[category][id];
+        return state.settings[key];
+    }
+};
 
 // Init
 $("#msg_err").hide();
+$("#msg_off").hide();
 var init = function(){
     fn.init(model, function(){
-        // On success
+        // Create viewfinder iframe
         $('#messages').fadeOut();
-        fn.controls.vf_init();
-        $('#overlays').removeClass("hidden");
+        $('#pwr').removeClass('disabled');
+        fn.controls.vf_init(function(){
+            var iframe = $('<iframe>').attr('src', 'http://127.0.0.1:2000/out');
+            $(iframe).attr('width', '100%').attr('height', '100%');
+            $('#overlays').removeClass("hidden");
+            $('#viewfinder').append(iframe);
+        });
+
+        // Populate info
 
         // TODO: Populate settings
     }, function(){
@@ -79,7 +102,7 @@ var init = function(){
 };
 $('#msg_err button').click(function(){
     $("#msg_err").hide();
-    $("#msg_con .conStat").text("hey");
+    $("#msg_con .conStat").text("Trying to connect again");
     $("#msg_con").show();
     fn.power.on(function(e){
         if (typeof e !== "undefined") {
@@ -108,21 +131,35 @@ $(function(){
     $('body').addClass(process.platform);
 
     // Power
-    bindToButton('sys_pwr_on', fn.power.on);
-    bindToButton('sys_pwr_off', fn.power.off);
-
-    // Viewfinder
-    bindToButton('vf_init', fn.controls.vf_init);
+    $('#pwr').click(function(){
+        hb.test(function(){
+            // Switch off
+            $('.message').each(function(){ $(this).hide() });
+            $('#msg_off').show();
+            $('#msg_off .title').text("Turning camera off");
+            $('#messages').fadeIn();
+            fn.controls.vf_close();
+            hb.stop();
+            fn.power.off();
+            $('#msg_off .title').text("Camera is off");
+        }, function(){
+            // Switch on
+            $('#msg_off .title').text("Turning camera on");
+            fn.power.on(function(){
+                $('#messages').fadeOut();
+            });
+        });
+    })
 
     // Start/stop recording
     bindToButton('shutter', function(){
-        var busy = hb.get("IS_BUSY");
+        var busy = query.status('IS_BUSY');
         if (busy == 1) {
             fn.controls.stoprec();
             $('.shutter').removeClass("rolling");
         } else {
             fn.controls.trigger();
-            if (hb.get("CURRENT_MODE") == 0)
+            if (query.status("CURRENT_MODE") == 0)
                 $('.shutter').addClass("rolling");
         }
     });
@@ -143,9 +180,10 @@ $(function(){
         $('#stat_mode').text(mode);
     })
 
-    /*****************
-        Resolution
-    *****************/
+    /**********************
+        Footage settings
+    **********************/
+    // Add option to dropdown
     var populate = function(dropdown, value, text, isDefault) {
         var option = $('<option>').attr('value',value).text(text);
         if (typeof isDefault !== undefined && isDefault)
@@ -269,7 +307,7 @@ $(function(){
         var val = parseInt($(this).val());
         prefs.video.fps = val;
         fn.set(3, val);
-        $('#stat_fps').text($('select[name=fps] option[value=' + val + ']').text());
+        $('#stat_fps').text($('select[name=fps] option[value=' + val + ']').text() + 'fps');
 
         // Update available FOVs
         var res = parseInt($('select[name=res]').val());
@@ -353,10 +391,12 @@ $(function(){
     /***************
         Controls
     ***************/
-
-    // Protune
+    // Protune master toggle
     $('#set_pro').click(function(){
         prefs[mode].pro = !prefs[mode].pro;
+        var ptKey = ants[model].settings[mode].PROTUNE;
+        fn.set(ptKey, prefs[mode].pro);
+
         if (prefs[mode].pro) {
             $(this).text("on");
             $("td.pt").each(function(){ $(this).removeClass("disabled") });

@@ -85,7 +85,7 @@
         </div>
 
         <!-- Top bar overlay -->
-        <div id="pwr">
+        <div id="pwr" class="disabled">
             <p><i class="material-icons">power_settings_new</i></p>
         </div>
 
@@ -93,7 +93,7 @@
         <div id="controls">
             <!-- Protune settings and shutter button -->
             <div class="left">
-                <table class="video">
+                <table class="video_normal">
                     <tr>
                         <td>protune <span id="set_pro">on</span></td>
                         <td class="pt">color <span id="set_color">gopro</span></td>
@@ -111,6 +111,7 @@
                         <td>grid <span id="set_grid">off</span></td>
                     </tr>
                 </table>
+
             </div>
             <div class="right">
                 <div id="duration">
@@ -136,6 +137,10 @@
 
                     <button type="button">Retry</button>
                 </div>
+                <!-- <div id="msg_off" class="message">
+                    <h1 class="icon normal"><i class="material-icons">info</i></h1>
+                    <h1 class="title">Camera is off</h1>
+                </div> -->
             </div>
             <div id="overlays" class="hidden">
                 <div class="thirdgrid hidden">
