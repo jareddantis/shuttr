@@ -8,49 +8,20 @@ const $ = require('jquery');
 const remote = require('electron').remote;
 const fn = require(__dirname + '/js/shuttr');
 const hb = require(__dirname + '/js/heartbeat');
-let model = "Hero5";
-
+const ants = require(__dirname + '/js/constants');
+let model = "HeroFive";
 var mode = "video";
-var prefs = {
-    grid: 0, // disabled
-    video: {
-        pro: 1, // on
-        pt: {
-            color: 0, // GoPro
-            wb: 0, // auto
-            iso: 9, // auto (SEPARATE KEY IN CONSTANTS)
-            shut: 8, // 1/60s
-            ev: 4, // off
-            shrp: 0, // hi
-            rawaud: 3 // off
-        },
-        lolt: 0, // off
-        stab: 0, // off
-        aud: 2, // auto
-    },
-    photo: {
-        pro: 0, // off
-        pt: {
-            color: 0, // GoPro
-            wb: 0, // auto
-            isomin: 3, // 100
-            isomax: 0, // 800
-            ev: 4, // off
-            shrp: 0, // hi
-        },
-        raw: 0, // off
-        wdr: 0 // off
-    }
-};
 
 // Init
 $("#msg_err").hide();
 var init = function(){
-    fn.init(function(){
+    fn.init(model, function(){
         // On success
         $('#messages').fadeOut();
         fn.controls.vf_init();
         $('#overlays').removeClass("hidden");
+
+        // TODO: Populate settings
     }, function(){
         // On error
         $('.message').each(function(){ $(this).hide() });
@@ -138,6 +109,110 @@ $(function(){
         $('#stat_mode').text(mode);
     })
 
+    /*****************
+        Resolution
+    *****************/
+    var populate = function(dropdown, value, text, isDefault) {
+        var option = $('<option>').attr('value',value).text(text);
+        if (typeof isDefault !== undefined && isDefault)
+            $(option).attr('selected', true);
+        $('select[name='+dropdown+']').append(option);
+    };
+    var disable = function(option) {
+        $('select[name=fov] option[value=' + option + ']').attr('disabled', 'disabled');
+    }
+    $('select[name=res]').on('change', function(){
+        var val = parseInt($(this).val());
+        fn.set(2, val);
+
+        // Update available fps
+        $('select[name=fps]').empty();
+        $('select[name=fov] option').each(function(){ $(this).removeAttr('disabled') });
+        switch (val) {
+            case 1: // 4k, wide (supr 24)
+                fn.set(3,8);
+                populate('fps', 8, 30, true);
+                populate('fps', 9, 24);
+                disable(1);
+                disable(2);
+                disable(4);
+                break;
+            case 4: // 2.7k, no supr/nar
+                fn.set(3,0);
+                populate('fps', 0, 60, true);
+                populate('fps', 6, 48);
+                populate('fps', 8, 30);
+                populate('fps', 9, 24);
+                disable(3);
+                disable(2);
+                break;
+            case 6: // 2.7k 4:3, wide only
+                fn.set(3,0);
+                populate('fps', 0, 30, true);
+                disable(3);
+                disable(1);
+                disable(2);
+                disable(4);
+                break;
+            case 7: // 1440p, wide only
+                fn.set(3,0);
+                populate('fps', 0, 80, true);
+                populate('fps', 5, 60);
+                populate('fps', 6, 48);
+                populate('fps', 8, 30);
+                populate('fps', 9, 24);
+                disable(3);
+                disable(1);
+                disable(2);
+                disable(4);
+                break;
+            case 9: // 1080p, all present
+                fn.set(3,0);
+                populate('fps', 0, 120, true); // wide, narrow
+                populate('fps', 2, 90); // wide
+                populate('fps', 4, 80); // supr only
+                populate('fps', 5, 60); 
+                populate('fps', 6, 48);
+                populate('fps', 8, 30);
+                populate('fps', 9, 24);
+                break;
+            case 10: // 960p, wide only
+                fn.set(3,0);
+                populate('fps', 0, 120, true);
+                populate('fps', 2, 60);
+                disable(3);
+                disable(1);
+                disable(2);
+                disable(4);
+                break;
+            case 12: // 720p, no lin
+                fn.set(3,0);
+                populate('fps', 0, 240, true); // nar only
+                populate('fps', 1, 120);
+                populate('fps', 2, 100); // supr only
+                populate('fps', 3, 60);
+                populate('fps', 6, 30); // no supr
+                disable(4);
+                break;
+            case 13: // 480p, wide only
+                fn.set(3,0);
+                populate('fps', 0, 240, true);
+                disable(3);
+                disable(1);
+                disable(2);
+                disable(4);
+                break;
+        }
+    })
+    $('select[name=fps]').on('change', function(){
+        var val = $(this).val();
+        fn.set(3, val);
+    })
+    $('select[name=fov]').on('change', function(){
+        var val = $(this).val();
+        fn.set(4, val);
+    })
+
     /***************
         Controls
     ***************/
@@ -181,6 +256,7 @@ $(function(){
     // Stabilizer
     $("#set_stab").click(function(){
         prefs.video.stab = !prefs.video.stab;
+        fn.set(ants[model].settings.video.STABILIZER, prefs.video.stab);
         if (prefs.video.stab)
             $(this).text("on")
         else

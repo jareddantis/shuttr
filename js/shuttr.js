@@ -41,16 +41,45 @@ var platform = {
     }
 }
 
-var ping = null;
+var ping = null, model = null;
 var Shuttr = {
-    init: function(proceed,error) {
+    init: function(m,p,e) {
         console.log("[shuttr] Starting up");
+        model = m;
         heartbeat.start(function(isAlive) {
             if (isAlive)
-                proceed();
+                p();
             else
-                error();
+                e();
         });
+    },
+    command: function(cmd, data) {
+        this.get('/command' + cmd, data);
+    },
+    set: function(key, value) {
+        this.get('/setting/' + key + '/' + value);
+    },
+    get: function(loc, data, cb) {
+        var host = '10.5.5.9',
+            path = '/gp/gpControl' + loc,
+            response = "";
+
+        // Encode data object as GET url
+        if (typeof data !== undefined && data !== null) {
+            path += '?';
+            for (var key in data)
+                path += key + '=' + data[key] + '&';
+        }
+
+        var opts = { host: host, path: path };
+        console.log(opts);
+        http.request(opts, (res) => {
+            res.on('data', (chunk) => { response += chunk });
+            res.on('end', function(){
+                if (typeof cb === "function")
+                    cb(response);
+            });
+        }).end();
     },
     controls: {
         vf_init: function() {
@@ -62,10 +91,10 @@ var Shuttr = {
             that.vf_play();
         },
         vf_open: function() {
-            // Set stream size to 1280x720
-            get("/setting/64/7", null, function(){
-                // Set stream bitrate to 2.4MB/s
-                get("/setting/62/2400000", null, function(){
+            // Set stream resolution to 1280x720
+            Shuttr.get("/setting/64/7", null, function(){
+                // Set stream bitrate to 8 Mbps
+                Shuttr.get("/setting/62/8000000", null, function(){
                     // Open viewfinder
                     vf.open((dgramClient) => {
                         handler = window.setInterval(vf.keepAlive, 2500);
@@ -93,11 +122,11 @@ var Shuttr = {
             vf.close();
             child.kill('SIGKILL');
         },
-        trigger: function() { command('/shutter', {p: 1}) },
-        stoprec: function() { command('/shutter', {p: 0}) }
+        trigger: function() { Shuttr.command('/shutter', {p: 1}) },
+        stoprec: function() { Shuttr.command('/shutter', {p: 0}) }
     },
     power: {
-        off: function() { command('/system/sleep') },
+        off: function() { Shuttr.command('/system/sleep') },
         on: function(cb) {
             wol.wake(platform.detect().getBssid(), {
                 address: '10.5.5.9',
@@ -111,44 +140,21 @@ var Shuttr = {
     },
     mode: {
         // Video
-        video: function() { command('/sub_mode', {mode: 0, sub_mode: 0}) },
-        vphoto: function() { command('/sub_mode', {mode: 0, sub_mode: 2}) },
-        looping: function() { command('/sub_mode', {mode: 0, sub_mode: 3}) },
+        video: function() { Shuttr.command('/sub_mode', {mode: 0, sub_mode: 0}) },
+        vphoto: function() { Shuttr.command('/sub_mode', {mode: 0, sub_mode: 2}) },
+        looping: function() { Shuttr.command('/sub_mode', {mode: 0, sub_mode: 3}) },
 
         // Photo
-        photo: function() { command('/sub_mode', {mode: 1, sub_mode: 0}) },
-        night: function() { command('/sub_mode', {mode: 1, sub_mode: 2}) },
-        burst: function() { command('/sub_mode', {mode: 2, sub_mode: 0}) },
-        continuous: function() { command('/sub_mode', {mode: 1, sub_mode: 1}) }, // Not on hero5
+        photo: function() { Shuttr.command('/sub_mode', {mode: 1, sub_mode: 0}) },
+        night: function() { Shuttr.command('/sub_mode', {mode: 1, sub_mode: 2}) },
+        burst: function() { Shuttr.command('/sub_mode', {mode: 2, sub_mode: 0}) },
+        continuous: function() { Shuttr.command('/sub_mode', {mode: 1, sub_mode: 1}) }, // Not on hero5
 
         // Timelapse
-        timelapse: function() { command('/sub_mode', {mode: 2, sub_mode: 1}) },
-        tl_video: function() { command('/sub_mode', {mode: 0, sub_mode: 1}) },
-        nightlapse: function() { command('/sub_mode', {mode: 2, sub_mode: 2}) }
+        timelapse: function() { Shuttr.command('/sub_mode', {mode: 2, sub_mode: 1}) },
+        tl_video: function() { Shuttr.command('/sub_mode', {mode: 0, sub_mode: 1}) },
+        nightlapse: function() { Shuttr.command('/sub_mode', {mode: 2, sub_mode: 2}) }
     }
-}
-
-var command = function(cmd, data) { get('/command' + cmd, data) }
-var get = function(loc, data, cb) {
-    var host = '10.5.5.9',
-        path = '/gp/gpControl' + loc,
-        response = "";
-
-    // Encode data object as GET url
-    if (typeof data !== undefined && data !== null) {
-        path += '?';
-        for (var key in data)
-            path += key + '=' + data[key] + '&';
-    }
-
-    var opts = { host: host, path: path };
-    http.request(opts, (res) => {
-        res.on('data', (chunk) => { response += chunk });
-        res.on('end', function(){
-            if (typeof cb === "function")
-                cb(response);
-        });
-    }).end();
 }
 
 module.exports = Shuttr;

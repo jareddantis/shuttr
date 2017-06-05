@@ -97,7 +97,7 @@ var viewfinder = {
                 "-f", "mpeg1video",
                 "-s", "800x600",
                 "-g", "60",
-                "-maxrate", "5000k",
+                "-probesize", "16384",
                 "-r", "30",
                 "http://127.0.0.1:2000/in"
             ])
@@ -114,9 +114,6 @@ var viewfinder = {
             ready: true,
             transcoder: transcode()
         };
-    },
-    stop: function() {
-        
     },
     keepAlive: function() {
         var msg = Buffer.from('_GPHD_:0:0:2:0.000000\n');

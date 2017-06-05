@@ -32,7 +32,7 @@ body {
     }
     
     // text styles
-    h1, h2, h3, h4, h5, h6, p, li, td, span, button {
+    h1, h2, h3, h4, h5, h6, p, li, td, span, button, select {
         color: white;
         font-family: 'Overpass', 'Roboto', 'Helvetica Neue', sans-serif;
     }
@@ -63,6 +63,63 @@ body {
                 margin-right: .75rem;
                 margin-top: -2px;
                 font-size: 1.25rem;
+            }
+        }
+
+        .resselect:hover {
+            #resselect { top: 32px }
+            #resselect > div {
+                opacity: 1;
+                margin-top: 8px;
+            }
+        }
+        .hoverdropdown {
+            width: 175px;
+            position: absolute;
+            z-index: 99;
+            left: 50%;
+            margin-left: -160px;
+            top: -400px;
+
+            & > div {
+                width: 175px;
+                background: #fff;
+                float: left;
+                position: relative;
+                margin-top: 0px;
+                opacity: 0;
+                -webkit-transition: all .1s ease-out;
+                -moz-transition: all .1s ease-out;
+                -ms-transition: all .1s ease-out;
+                -o-transition: all .1s ease-out;
+                transition: all .1s ease-out;
+                .deadcenter;
+
+                & > div {
+                    margin: 1rem 0;
+
+                    &.triangle {
+                        width: 0;
+                        height: 0;
+                        position: absolute;
+                        border-left: 8px solid transparent;
+                        border-right: 8px solid transparent;
+                        border-bottom: 8px solid white;
+                        top: -8px;
+                        left: 50%;
+                        margin: 0 0 0 40px;
+                    }
+                    select {
+                        color: black;
+                        background: none;
+                        text-transform: uppercase;
+                        margin: .25rem 0;
+                    }
+                    p {
+                        color: black;
+                        margin: 0;
+                    }
+                }
             }
         }
     }

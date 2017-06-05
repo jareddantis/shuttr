@@ -21,8 +21,42 @@
             <div>
                 <p><span id="stat_mode">video</span> mode</p>
             </div>
-            <div>
+            <div class="resselect">
                 <p><i class="material-icons">camera</i><span id="stat_res">-</span> <span id="stat_fps">-</span> <span id="stat_fov">-</span></p>
+
+                <div id="resselect" class="hoverdropdown">
+                    <div class="dropOut">
+                        <div class="triangle"></div>
+                        <div class="video">
+                            <p>resolution</p>
+                            <select name="res">
+                                <option value="1">4k</option>
+                                <option value="4">2.7k</option>
+                                <option value="6">2.7k 4:3</option>
+                                <option value="7">1440p</option>
+                                <option value="9">1080p</option>
+                                <option value="10">960p</option>
+                                <option value="12">720p</option>
+                                <option value="13">480p</option>
+                            </select>
+
+                            <p>fps</p>
+                            <select name="fps">
+                                <option value="8">30</option>
+                                <option value="9">24</option>
+                            </select>
+
+                            <p>fov</p>
+                            <select name="fov">
+                                <option value="3">Superview</option>
+                                <option value="0">Wide</option>
+                                <option value="1">Medium</option>
+                                <option value="2">Narrow</option>
+                                <option value="4">Linear</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div>
                 <p id="stat_sd"><i class="material-icons">sd_storage</i>- -</p>
