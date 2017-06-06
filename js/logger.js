@@ -38,7 +38,7 @@ var logger = {
             fs.appendFile(f, entry + '\n', (e) => {
                 if (e) {
                     throw e;
-                    console.error("error writing to log: " + e);
+                    console.error("Error writing to log: " + e);
                 }
             });
         }

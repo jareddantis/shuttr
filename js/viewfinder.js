@@ -33,13 +33,11 @@ else if (process.platform == 'win32') {
     else
         ffbin += 'ffmpeg-win32.exe';
 } else
-    console.error("Only Mac and Windows are supported, sorry");
+    log("Error: No ffmpeg binary available for " + process.platform);
 
 var viewfinder = {
     open: function(callback){
-        log('opening');
-        if (typeof callback !== "function")
-            console.error("viewfinder.open() requires a callback");
+        log('Opening stream');
         http.request({
             host: GOPRO_IP,
             path: '/gp/gpControl/execute?p1=gpStream&c1=restart'
@@ -60,7 +58,7 @@ var viewfinder = {
         // Adapted from @citolen's goproh4 project
         // Create a WebSocket to handle connections
         websocket.on('connection', (socket) => {
-            log("socket connected");
+            log("Socket connected");
 
             let header = new Buffer(8);
             header.write('jsmp');
@@ -69,7 +67,7 @@ var viewfinder = {
             socket.send(header, { binary: true });
 
             socket.on('close', (e, m) => {
-                log("socket disconnected with e = " + e + ", m = \"" + m + "\"");
+                log("Socket disconnected: error " + e + " (" + m + ")");
             })
         })
         websocket.broadcast = (d,o) => {
@@ -77,13 +75,13 @@ var viewfinder = {
                 if (client.readyState == ws.OPEN)
                     client.send(d,o);
                 else
-                    console.error("client " + client + " not connected (readyState = " + client.readyState + ")");
+                    log("Error: Client " + client + " not connected (readyState = " + client.readyState + ")");
             });
         }
 
         // Route incoming and outgoing data using Express
         server.post("/in", (req, res) => {
-            log("stream connected @ " + req.socket.remoteAddress + ":" + req.socket.remotePort);
+            log("Stream connected: addr = " + req.socket.remoteAddress + ", port = " + req.socket.remotePort);
             req.socket.setTimeout(0);
             req.on('data', (data) => {
                 websocket.broadcast(data, {binary: true});
@@ -124,7 +122,7 @@ var viewfinder = {
         var msg = Buffer.from('_GPHD_:0:0:2:0.000000\n');
         client.send(msg, GOPRO_PORT, GOPRO_IP, (e) => {
             if (e !== null)
-                log("error sending keepalive: " + e);
+                log("Error sending keepalive: " + e);
         });
     }
 }

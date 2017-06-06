@@ -8,13 +8,10 @@
 const l = require('./logger').log;
 var log = function(msg) { l('heartbeat', msg) };
 
-const $ = require('jquery');
+const listener = require('./stethoscope').respond;
 const fn = require('./shuttr');
 const http = require('http');
-const ping = require('ping');
 
-var oldStatus = null, oldSettings = null, handle = null;
-var opts = { host: '10.5.5.9', path: '/gp/gpControl/status' };
 var counts = 0;
 var delay = 2000;
 
@@ -23,16 +20,23 @@ var heart = {
     regulator: null,
     test: function(onSuccess, onError) {
         this.isAlive = false;
-        this.beat(new Function());
+        var req = this.beat();
         window.setTimeout(function(){
             if (heart.isAlive)
                 onSuccess();
-            else
+            else {
+                // Terminate request past timeout
+                log("Timeout reached but request failed, aborting");
+                req.abort();
                 onError();
+            }
         }, 5000);
     },
-    beat: function(listener) {
-        http.request(opts, (res) => {
+    beat: function() {
+        var req = http.request({
+            host: '10.5.5.9',
+            path: '/gp/gpControl/status'
+        }, (res) => {
             var response = "";
             res.on('data', (chunk) => { response += chunk });
             res.on('end', function(){
@@ -40,17 +44,17 @@ var heart = {
                 heart.isAlive = true;
                 listener(data);
             });
-        }).end();
+        });
+        req.end();
+        return req;
     },
-    start: function(onSuccess, onError, beatlistener) {
+    start: function(onSuccess, onError) {
         log("Checking if host is reachable");
 
         this.test(function(){
             log("Host is reachable, starting heartbeat");
-            heart.beat(beatlistener);
-            heart.regulator = window.setInterval(function(){
-                heart.beat(beatlistener);
-            }, 2000);
+            heart.beat();
+            heart.regulator = window.setInterval(heart.beat, 2000);
         }, function(){
             log("Host http://10.5.5.9/ is unreachable");
         })

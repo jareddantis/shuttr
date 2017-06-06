@@ -17,10 +17,9 @@ const exec = require('child_process').execSync;
 var handler = null, child = null;
 var ping = null, model = null;
 var Shuttr = {
-    init: function(newModel, proceed, error, beatListener) {
+    init: function(proceed, error) {
         log("Starting up");
-        model = newModel;
-        heartbeat.start(proceed, error, beatListener);
+        heartbeat.start(proceed, error);
     },
     command: function(cmd, data) { this.get('/command' + cmd, data) },
     set: function(key, value) { this.get('/setting/' + key + '/' + value) },
@@ -81,7 +80,11 @@ var Shuttr = {
             log("Closing viewfinder");
             window.clearInterval(handler);
             vf.close();
-            child.kill('SIGKILL');
+            try {
+                child.kill('SIGKILL');
+            } catch(e) {
+                log("Error killing ffmpeg spawn: " + e);
+            }
         },
         trigger: function() { Shuttr.command('/shutter', {p: 1}) },
         stoprec: function() { Shuttr.command('/shutter', {p: 0}) }

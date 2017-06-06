@@ -5,7 +5,7 @@
 */
 
 var gopro = {
-    HeroFive: {
+    HeroFiveBlack: {
         status: {
             INTERNAL_BATT_PRESENT: 1,    // 0 or 1
             INTERNAL_BATT_LEVEL: 2,      // 4 - charging, 3 - full, 2 - half, 1 - low
