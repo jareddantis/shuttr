@@ -47,6 +47,7 @@ var heart = {
 
         this.test(function(){
             log("Host is reachable, starting heartbeat");
+            heart.beat(beatlistener);
             heart.regulator = window.setInterval(function(){
                 heart.beat(beatlistener);
             }, 2000);

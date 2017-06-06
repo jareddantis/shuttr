@@ -87,12 +87,15 @@ var refreshInfo = function(data) {
     /****************************
         Update changed values
     ****************************/
-    // Video resolution, fps, fov, stabilizer, auto low light
+
+    /* Video resolution, fps, fov, stabilizer, auto low light */
+    // Populate lists
     var newRes = data.settings[ref.settings.video.RESOLUTION],
         resChanged = newRes != parseInt($('select[name=res]').val()),
         newFps = data.settings[ref.settings.video.FRAME_RATE],
         fpsChanged = newFps != parseInt($('select[name=fps]').val()),
-        newFov = data.settings[ref.settings.video.FOV];
+        newFov = data.settings[ref.settings.video.FOV],
+        fovChanged = newFov != parseInt($('select[name=fov]').val());
     if (resChanged || fpsChanged) {
         populateList(newRes, newFps);
 
@@ -117,20 +120,39 @@ var refreshInfo = function(data) {
                 $('#set_lolt').removeClass('on');
         }
     }
-    if (resChanged) {
-        $('select[name=res]').val(newRes)
+
+    // Update dropdowns
+    if (resChanged) $('select[name=res]').val(newRes);
+    if (fpsChanged) $('select[name=fps]').val(newFps);
+    if (fovChanged)$('select[name=fov]').val(newFov);
+
+    // Update HUD for res, fov, and fps
+    var oldStr = $('#stat_res').text(), newStr = $('select[name=res] option[value=' + newRes + ']').text();
+    if (oldStr != newStr)
         $('#stat_res').text($('select[name=res] option[value=' + newRes + ']').text());
-    }
-    if (fpsChanged) {
-        $('select[name=fps]').val(newFps);
-        $('#stat_fps').text($('select[name=fps] option[value=' + newFps + ']').text() + 'fps');
-    }
-    if (newFov != parseInt($('select[name=fov]').val())) {
-        $('select[name=fov]').val(newFov);
-        $('#stat_fov').text($('select[name=fov] option[value=' + newFov + ']').attr('data-abbr'));
+    oldStr = $('#stat_fps').text(), newStr = $('select[name=fps] option[value=' + newFps + ']').text() + 'FPS';
+    if (oldStr != newStr)
+        $('#stat_fps').text(newStr);
+    oldStr = $('#stat_fov').text(), newStr = $('select[name=fov] option[value=' + newFov + ']').attr('data-abbr');
+    if (oldStr != newStr)
+        $('#stat_fov').text(newStr);
+
+    // Storage space
+    oldStr = parseInt($('#stat_sd').attr('data-secs'));
+    var remain = $('#stat_sd').attr('class') == "video" ? data.status[ref.status.REMAINING_VIDEO] : data.status[ref.status.REMAINING_PHOTO];
+    if (oldStr != parseInt(remain)) {
+        var d = new Date(null);
+        d.setSeconds(parseInt(remain));
+        var i = d.toISOString().substr(11,8), // hh:mm:ss
+            r = i.split(':');         // [hh, mm, ss]
+        newStr = r[0] + 'h ' + r[1] + 'm ' + r[2] + 's';
+        $('#stat_sd').attr('data-secs',remain).text(newStr);
     }
 
     // Battery percentage
+    oldStr = $('#stat_bat').text(), newStr = data.status[ref.status.INTERNAL_BATT_PERCENT] + '%';
+    if (oldStr != newStr)
+        $('#stat_bat').text(newStr);
 };
 var query = {
     status: function(id) {
@@ -152,12 +174,12 @@ var init = function(){
         $('#messages').fadeOut();
         $('#pwr').removeClass('disabled');
         $('#controls').removeClass('disabled');
-        // fn.controls.vf_init(function(){
-        //     var iframe = $('<iframe>').attr('src', 'http://127.0.0.1:2000/out');
-        //     $(iframe).attr('width', '100%').attr('height', '100%');
-        //     $('#overlays').removeClass("hidden");
-        //     $('#viewfinder').append(iframe);
-        // });
+        fn.controls.vf_init(function(){
+            var iframe = $('<iframe>').attr('src', 'http://127.0.0.1:2000/out');
+            $(iframe).attr('width', '100%').attr('height', '100%');
+            $('#overlays').removeClass("hidden");
+            $('#viewfinder').append(iframe);
+        });
     }, function(){
         // On error
         $('.message').each(function(){ $(this).hide() });
@@ -222,7 +244,7 @@ var populateList = function(r,f) {
     $('select[name=fov] option').each(function(){ $(this).removeAttr('disabled') });
     switch (res) {
         case 1: // 4k
-            disableFPS([0,1,2,3,4,5,6,7]);
+            disableFPS([0,1,2,3,4,5,7]);
             disableFOV(1);
             disableFOV(2);
             disableFOV(4);
@@ -240,7 +262,7 @@ var populateList = function(r,f) {
             disableFOV(2);
             break;
         case 6: // 2.7k 4:3, wide only
-            disableFPS([0,1,2,3,4,5,6,7,9]);
+            disableFPS([0,1,2,3,4,5,7,10]);
             disableFOV(3);
             disableFOV(1);
             disableFOV(2);
@@ -281,25 +303,25 @@ var populateList = function(r,f) {
             }
             break;
         case 10: // 960p, wide only
-            disableFPS([0,2,3,4,6,7,8,9]);
+            disableFPS([0,2,3,4,7,8,10]);
             disableFOV(3);
             disableFOV(1);
             disableFOV(2);
             disableFOV(4);
             break;
         case 12: // 720p, no lin
-            disableFPS([3,4,7,9]);
+            disableFPS([3,4,7,10]);
             disableFOV(4);
             switch (val) {
                 case 0: // 240fps narr only
                     disableFOV(0);
                     disableFOV(1);
-                    disableFOV(2);
+                    disableFOV(4);
                     disableFOV(3);
-                    selectFOV(4);
+                    selectFOV(2);
                     break;
                 case 1: // 120fps supr wide med narr
-                case 3: // 60fps supr wide med narr
+                case 5: // 60fps supr wide med narr
                     disableFOV(4);
                     selectFOV(3);
                     break;
@@ -310,16 +332,14 @@ var populateList = function(r,f) {
                     disableFOV(4);
                     selectFOV(3);
                     break;
-                case 6: // 30fps wide med narr
-                    disableFOV(0);
-                    disableFOV(1);
-                    disableFOV(2);
-                    selectFOV(3);
+                case 8: // 30fps wide med narr
+                    disableFOV(3);
+                    selectFOV(0);
                     break;
             }
             break;
-        case 13: // 480p, wide only
-            disableFPS([1,2,3,4,5,6,7,8,9]);
+        case 17: // 480p, wide only
+            disableFPS([1,2,3,4,5,7,8,10]);
             disableFOV(3);
             disableFOV(1);
             disableFOV(2);
@@ -391,7 +411,6 @@ $(function(){
         var val = parseInt($(this).val());
         fn.set(2, val);
         prefs.video.res = val;
-        $('#stat_res').text($('select[name=res] option[value=' + val + ']').text());
 
         // Update available fps
         populateList(val);
@@ -400,7 +419,6 @@ $(function(){
         var val = parseInt($(this).val());
         prefs.video.fps = val;
         fn.set(3, val);
-        $('#stat_fps').text($('select[name=fps] option[value=' + val + ']').text() + 'fps');
 
         // Update available FOVs
         populateList(null, val);
@@ -409,8 +427,6 @@ $(function(){
         var val = parseInt($(this).val());
         prefs.video.fov = val;
         fn.set(4, val);
-        console.log(val, $('select[name=fov] option[value=' + val + ']').attr('data-abbr'))
-        $('#stat_fov').text($('select[name=fov] option[value=' + val + ']').attr('data-abbr'));
     })
 
     /***************
