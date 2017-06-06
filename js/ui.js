@@ -9,10 +9,11 @@ const l = require(__dirname + '/js/logger').log;
 var log = function(msg) { l('ui', msg) };
 
 const $ = require('jquery');
-const remote = require('electron').remote;
 const fn = require(__dirname + '/js/shuttr');
 const hb = require(__dirname + '/js/heartbeat');
 const ants = require(__dirname + '/js/constants');
+const {BrowserWindow, app} = require('electron').remote;
+var win = BrowserWindow;
 let model = "HeroFive";
 var mode = "video";
 
@@ -50,6 +51,26 @@ var prefs = {
         wdr: 0 // off
     }
 };
+
+// Handle window close and ctrl + c
+var cleanup = function() {
+    log("Terminating heartbeat and stopping viewfinder");
+    heart.stop();
+    fn.controls.vf_close();
+    log("Quitting");
+    if (win) {
+        win.destroy();
+        win = null;
+    }
+    app.quit();
+}
+app.on('ready', () => {
+    win.on('closed', (e) => {
+        e.preventDefault();
+        cleanup();
+    })
+})
+window.onbeforeunload = cleanup;
 
 // Update state from camera status
 var state = {};
@@ -108,6 +129,8 @@ var refreshInfo = function(data) {
         $('select[name=fov]').val(newFov);
         $('#stat_fov').text($('select[name=fov] option[value=' + newFov + ']').attr('data-abbr'));
     }
+
+    // Battery percentage
 };
 var query = {
     status: function(id) {
@@ -135,10 +158,6 @@ var init = function(){
         //     $('#overlays').removeClass("hidden");
         //     $('#viewfinder').append(iframe);
         // });
-
-        // Populate info
-
-        // TODO: Populate settings
     }, function(){
         // On error
         $('.message').each(function(){ $(this).hide() });
@@ -414,7 +433,6 @@ $(function(){
 
     // Stabilizer
     $("#set_stab").click(function(){
-        // TODO: break if 4K or >60fps
         prefs.video.stab = flip(prefs.video.stab);
         fn.set(ants[model].settings.video.STABILIZER, prefs.video.stab);
         if (prefs.video.stab)
@@ -425,7 +443,6 @@ $(function(){
 
     // Auto low light
     $("#set_lolt").click(function(){
-        // TODO: break if <=30fps
         prefs.video.lolt = flip(prefs.video.lolt);
         fn.set(ants[model].settings.video.LOWLIGHT, prefs.video.lolt);
         if (prefs.video.lolt)

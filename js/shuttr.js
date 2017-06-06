@@ -14,37 +14,7 @@ const vf = require('./viewfinder');
 const heartbeat = require('./heartbeat');
 const exec = require('child_process').execSync;
 
-var handler = null;
-var child = null;
-
-var platform = {
-    detect: function() {
-        let plat = "";
-        if (process.platform == "darwin")
-            plat = "darwin";
-        else if (process.platform == "win32") {
-            if (process.arch == "x64")
-                plat = "win64";
-            else
-                plat = "win32";
-        } else
-            plat = "linux";
-        return this[plat];
-    },
-    win32: {},
-    win64: {},
-    linux: {},
-    darwin: {
-        getBssid: function() {
-            var cmd = "system_profiler SPNetworkDataType | grep RouterHardwareAddress | sed 's/.*RouterHardwareAddress=//'";
-            var code = exec(cmd), bssid = "";
-            for (var i = 0; i < code.length - 1; i++)    // The last character is a newline
-                bssid += String.fromCharCode(code[i]);
-            return bssid;
-        }
-    }
-}
-
+var handler = null, child = null;
 var ping = null, model = null;
 var Shuttr = {
     init: function(newModel, proceed, error, beatListener) {
@@ -86,10 +56,12 @@ var Shuttr = {
         },
         vf_open: function() {
             // Set stream resolution to 1280x720
+            log("Setting stream parameters");
             Shuttr.get("/setting/64/7", null, function(){
                 // Set stream bitrate to 8 Mbps
                 Shuttr.get("/setting/62/8000000", null, function(){
                     // Open viewfinder
+                    log("Opening viewfinder");
                     vf.open((dgramClient) => {
                         handler = window.setInterval(vf.keepAlive, 2500);
                     });
@@ -99,12 +71,14 @@ var Shuttr = {
         vf_play: function(onReady) {
             let viewfinder = vf.play();
             if (viewfinder.ready) {
+                log("Viewfinder open, starting transcode");
                 child = viewfinder.transcoder;
                 onReady();
             } else
                 log("error: viewfinder failed to initialize");
         },
         vf_close: function() {
+            log("Closing viewfinder");
             window.clearInterval(handler);
             vf.close();
             child.kill('SIGKILL');
@@ -114,15 +88,25 @@ var Shuttr = {
     },
     power: {
         off: function() { Shuttr.command('/system/sleep') },
+        getBssid: function() {
+            var cmd = "system_profiler SPNetworkDataType | grep RouterHardwareAddress | sed 's/.*RouterHardwareAddress=//'";
+            var code = exec(cmd), bssid = "";
+            for (var i = 0; i < code.length - 1; i++)    // The last character is a newline
+                bssid += String.fromCharCode(code[i]);
+            return bssid;
+        },
         on: function(cb) {
-            wol.wake(platform.detect().getBssid(), {
-                address: '10.5.5.9',
-                port: 9
-            }, (e) => {
-                cb(e);
-                if (e !== undefined)
-                    log(e)
-            });
+            // Only on darwin
+            if (process.platform == "darwin") {
+                wol.wake(this.getBssid(), {
+                    address: '10.5.5.9',
+                    port: 9
+                }, (e) => {
+                    cb(e);
+                    if (e !== undefined)
+                        log(e)
+                });
+            }
         }
     },
     mode: {

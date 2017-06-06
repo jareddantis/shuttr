@@ -21,7 +21,8 @@ function createWindow() {
       frame: false,
       titleBarStyle: 'hidden-inset',
       backgroundColor: '#000',
-      darkTheme: true
+      darkTheme: true,
+      fullscreenable: false
     })
 
     // and load the index.html of the app.
@@ -49,13 +50,7 @@ function createWindow() {
 app.on('ready', createWindow)
 
 // Quit when all windows are closed.
-app.on('window-all-closed', () => {
-    // On macOS it is common for applications and their menu bar
-    // to stay active until the user quits explicitly with Cmd + Q
-    if (process.platform !== 'darwin') {
-        app.quit()
-    }
-})
+app.on('window-all-closed', app.quit)
 
 app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the

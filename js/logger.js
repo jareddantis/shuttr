@@ -10,6 +10,12 @@ var logger = {
     enabled: true,
     writeToFile: true,
     filename: (function(){
+        // Get platform user home path
+        var name = "/tk.aureljared.shuttr";
+        var folder = process.platform == 'win32' || process.platform == 'win64' ? process.env.APPDATA + name : (process.platform == 'darwin' ? process.env.HOME + '/Library/Application Support' + name : process.env.HOME + '/.local/share' + name);
+        if (!fs.existsSync(folder))
+            fs.mkdirSync(folder);
+
         var o = new Date(),
             y = o.getFullYear(),
             m = o.getMonth(),
@@ -22,7 +28,7 @@ var logger = {
         hh = hh < 10 ? '0' + hh : hh;
         mm = mm < 10 ? '0' + mm : mm;
         
-        return 'shuttrlog_' + y + '-' + m + '-' + d + '_' + hh + '-' + mm + '.txt';
+        return folder + '/' + 'shuttrlog_' + y + '-' + m + '-' + d + '_' + hh + '-' + mm + '.txt';
     })(),
     log: (src, msg) => {
         var entry = '[' + src + '] ' + msg;
