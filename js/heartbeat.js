@@ -49,7 +49,7 @@ var heart = {
             log("Host is reachable, starting heartbeat");
             heart.regulator = window.setInterval(function(){
                 heart.beat(beatlistener);
-            }, 1000);
+            }, 2000);
         }, function(){
             log("Host http://10.5.5.9/ is unreachable");
         })

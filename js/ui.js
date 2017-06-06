@@ -58,10 +58,56 @@ var refreshInfo = function(data) {
         status: data.status,
         settings: data.settings
     };
-    // Resolution, fps, fov
-    // $('select[name=res]').val(settings['2']).change();
-    // $('select[name=fps]').val(settings['3']).change();
-    // $('select[name=fov]').val(settings['4']).change();
+    var ref = {
+        status: ants[model].status,
+        settings: ants[model].settings
+    };
+
+    /****************************
+        Update changed values
+    ****************************/
+    // Video resolution, fps, fov, stabilizer, auto low light
+    var newRes = data.settings[ref.settings.video.RESOLUTION],
+        resChanged = newRes != parseInt($('select[name=res]').val()),
+        newFps = data.settings[ref.settings.video.FRAME_RATE],
+        fpsChanged = newFps != parseInt($('select[name=fps]').val()),
+        newFov = data.settings[ref.settings.video.FOV];
+    if (resChanged || fpsChanged) {
+        populateList(newRes, newFps);
+
+        // Disable stabilizer on 4k and framerates above 60
+        if (newRes == 1 || newFps < 5)
+            $('#set_stab').removeClass('on').addClass('disabled');
+        else {
+            $('#set_stab').removeClass('disabled');
+            if (parseInt(data.settings[ref.settings.video.STABILIZER]))
+                $('#set_stab').addClass('on');
+            else
+                $('#set_stab').removeClass('on');
+        }
+        // Disable auto low light on framerates below 48
+        if (newFps > 7)
+            $('#set_lolt').removeClass('on').addClass('disabled');
+        else {
+            $('#set_lolt').removeClass('disabled');
+            if (parseInt(data.settings[ref.settings.video.LOWLIGHT]))
+                $('#set_lolt').addClass('on');
+            else
+                $('#set_lolt').removeClass('on');
+        }
+    }
+    if (resChanged) {
+        $('select[name=res]').val(newRes)
+        $('#stat_res').text($('select[name=res] option[value=' + newRes + ']').text());
+    }
+    if (fpsChanged) {
+        $('select[name=fps]').val(newFps);
+        $('#stat_fps').text($('select[name=fps] option[value=' + newFps + ']').text() + 'fps');
+    }
+    if (newFov != parseInt($('select[name=fov]').val())) {
+        $('select[name=fov]').val(newFov);
+        $('#stat_fov').text($('select[name=fov] option[value=' + newFov + ']').attr('data-abbr'));
+    }
 };
 var query = {
     status: function(id) {
@@ -82,12 +128,13 @@ var init = function(){
         // Create viewfinder iframe
         $('#messages').fadeOut();
         $('#pwr').removeClass('disabled');
-        fn.controls.vf_init(function(){
-            var iframe = $('<iframe>').attr('src', 'http://127.0.0.1:2000/out');
-            $(iframe).attr('width', '100%').attr('height', '100%');
-            $('#overlays').removeClass("hidden");
-            $('#viewfinder').append(iframe);
-        });
+        $('#controls').removeClass('disabled');
+        // fn.controls.vf_init(function(){
+        //     var iframe = $('<iframe>').attr('src', 'http://127.0.0.1:2000/out');
+        //     $(iframe).attr('width', '100%').attr('height', '100%');
+        //     $('#overlays').removeClass("hidden");
+        //     $('#viewfinder').append(iframe);
+        // });
 
         // Populate info
 
@@ -123,6 +170,144 @@ $("#modeselect li:first-child").hover(function(){
 }, function(){
     $("#modeselect .triangle").removeAttr("style");
 });
+
+// Flip boolean values and convert to 1/0
+var flip = function(val) {
+    return !val ? 1 : 0;
+}
+
+// Populate lists
+var populateList = function(r,f) {
+    var populate = function(dropdown, value, text) {
+        var option = $('<option>').attr('value',value).text(text);
+        $('select[name='+dropdown+']').append(option);
+    }
+    var disableFPS = function(options) {
+        for (var i = 0; i < options.length; i++)
+            $('select[name=fps] option[value=' + options[i] + ']').attr('disabled', 'disabled');
+    }
+    var disableFOV = function(option) {
+        $('select[name=fov] option[value=' + option + ']').attr('disabled', 'disabled');
+    }
+    var enableFOV = function(option) {
+        $('select[name=fov] option[value=' + option + ']').removeAttr('disabled');
+    }
+    var selectFOV = function(option) {
+        $('select[name=fov]').val(option);
+        fn.set(4, option);
+    }
+    var res = (typeof r !== undefined && r !== null) ? r : parseInt($('select[name=res]').val()),
+        val = (typeof f !== undefined && f !== null) ? f : parseInt($('select[name=fps]').val());
+
+    $('select[name=fps] option').each(function(){ $(this).removeAttr('disabled') });
+    $('select[name=fov] option').each(function(){ $(this).removeAttr('disabled') });
+    switch (res) {
+        case 1: // 4k
+            disableFPS([0,1,2,3,4,5,6,7]);
+            disableFOV(1);
+            disableFOV(2);
+            disableFOV(4);
+            if (val == 10) { // 24fps supr, wide
+                enableFOV(3);
+                selectFOV(3);
+            } else { // 30fps supr only
+                disableFOV(3);
+                selectFOV(0);
+            }
+            break;
+        case 4: // 2.7k, no supr/nar
+            disableFPS([0,1,2,3,4]);
+            disableFOV(3);
+            disableFOV(2);
+            break;
+        case 6: // 2.7k 4:3, wide only
+            disableFPS([0,1,2,3,4,5,6,7,9]);
+            disableFOV(3);
+            disableFOV(1);
+            disableFOV(2);
+            disableFOV(4);
+            break;
+        case 7: // 1440p, wide only
+            disableFPS([0,1,2,3]);
+            disableFOV(3);
+            disableFOV(1);
+            disableFOV(2);
+            disableFOV(4);
+            break;
+        case 9: // 1080p
+            disableFPS([0,2]);
+            switch (val) {
+                case 1: // 120fps wide, narr
+                    disableFOV(3);
+                    disableFOV(1);
+                    disableFOV(4);
+                    selectFOV(0);
+                    break;
+                case 3: // 90fps wide only
+                    disableFOV(3);
+                    disableFOV(1);
+                    disableFOV(2);
+                    disableFOV(4);
+                    selectFOV(0);
+                    break;
+                case 4: // 80fps supr only
+                    disableFOV(0);
+                    disableFOV(1);
+                    disableFOV(2);
+                    disableFOV(4);
+                    selectFOV(3);
+                    break;
+                default: // use supr for everything else
+                    selectFOV(3);
+            }
+            break;
+        case 10: // 960p, wide only
+            disableFPS([0,2,3,4,6,7,8,9]);
+            disableFOV(3);
+            disableFOV(1);
+            disableFOV(2);
+            disableFOV(4);
+            break;
+        case 12: // 720p, no lin
+            disableFPS([3,4,7,9]);
+            disableFOV(4);
+            switch (val) {
+                case 0: // 240fps narr only
+                    disableFOV(0);
+                    disableFOV(1);
+                    disableFOV(2);
+                    disableFOV(3);
+                    selectFOV(4);
+                    break;
+                case 1: // 120fps supr wide med narr
+                case 3: // 60fps supr wide med narr
+                    disableFOV(4);
+                    selectFOV(3);
+                    break;
+                case 2: // 100fps supr only
+                    disableFOV(0);
+                    disableFOV(1);
+                    disableFOV(2);
+                    disableFOV(4);
+                    selectFOV(3);
+                    break;
+                case 6: // 30fps wide med narr
+                    disableFOV(0);
+                    disableFOV(1);
+                    disableFOV(2);
+                    selectFOV(3);
+                    break;
+            }
+            break;
+        case 13: // 480p, wide only
+            disableFPS([1,2,3,4,5,6,7,8,9]);
+            disableFOV(3);
+            disableFOV(1);
+            disableFOV(2);
+            disableFOV(4);
+            break;
+    }
+}
 
 // Buttons
 var bindToButton = function(id, fn) { $('#' + id).click(fn) }
@@ -183,26 +368,6 @@ $(function(){
     /**********************
         Footage settings
     **********************/
-    // Add option to dropdown
-    var populate = function(dropdown, value, text, isDefault) {
-        var option = $('<option>').attr('value',value).text(text);
-        if (typeof isDefault !== undefined && isDefault)
-            $(option).attr('selected', true);
-        $('select[name='+dropdown+']').append(option);
-    };
-    // Disable FOV
-    var disable = function(option) {
-        $('select[name=fov] option[value=' + option + ']').attr('disabled', 'disabled');
-    }
-    // Enable FOV
-    var enable = function(option) {
-        $('select[name=fov] option[value=' + option + ']').removeAttr('disabled');
-    }
-    // Select FOV
-    var select = function(option) {
-        $('select[name=fov]').val(option);
-        fn.set(4, option);
-    }
     $('select[name=res]').on('change', function(){
         var val = parseInt($(this).val());
         fn.set(2, val);
@@ -210,98 +375,7 @@ $(function(){
         $('#stat_res').text($('select[name=res] option[value=' + val + ']').text());
 
         // Update available fps
-        $('select[name=fps]').empty();
-        $('select[name=fov] option').each(function(){ $(this).removeAttr('disabled') });
-        switch (val) {
-            case 1: // 4k, wide (supr 24)
-                fn.set(3,8);
-                populate('fps', 8, 30, true);
-                populate('fps', 9, 24);
-                select(0);
-                disable(1);
-                disable(2);
-                disable(3);
-                disable(4);
-                break;
-            case 4: // 2.7k, no supr/nar
-                fn.set(3,0);
-                populate('fps', 0, 60, true);
-                populate('fps', 6, 48);
-                populate('fps', 8, 30);
-                populate('fps', 9, 24);
-                select(0);
-                disable(3);
-                disable(2);
-                break;
-            case 6: // 2.7k 4:3, wide only
-                fn.set(3,0);
-                populate('fps', 0, 30, true);
-                select(0);
-                disable(3);
-                disable(1);
-                disable(2);
-                disable(4);
-                break;
-            case 7: // 1440p, wide only
-                fn.set(3,0);
-                populate('fps', 0, 80, true);
-                populate('fps', 5, 60);
-                populate('fps', 6, 48);
-                populate('fps', 8, 30);
-                populate('fps', 9, 24);
-                select(0);
-                disable(3);
-                disable(1);
-                disable(2);
-                disable(4);
-                break;
-            case 9: // 1080p, all present
-                fn.set(3,0);
-                populate('fps', 0, 120, true); // wide, narrow
-                populate('fps', 2, 90); // wide
-                populate('fps', 4, 80); // supr only
-                populate('fps', 5, 60); 
-                populate('fps', 6, 48);
-                populate('fps', 8, 30);
-                populate('fps', 9, 24);
-                select(0);
-                disable(3);
-                disable(1);
-                disable(4);
-                break;
-            case 10: // 960p, wide only
-                fn.set(3,0);
-                populate('fps', 0, 120, true);
-                populate('fps', 2, 60);
-                select(0);
-                disable(3);
-                disable(1);
-                disable(2);
-                disable(4);
-                break;
-            case 12: // 720p, no lin
-                fn.set(3,0);
-                populate('fps', 0, 240, true); // nar only
-                populate('fps', 1, 120);
-                populate('fps', 2, 100); // supr only
-                populate('fps', 3, 60);
-                populate('fps', 6, 30); // no supr
-                select(2);
-                disable(0);
-                disable(1);
-                disable(3);
-                disable(4);
-                break;
-            case 13: // 480p, wide only
-                fn.set(3,0);
-                populate('fps', 0, 240, true);
-                select(0);
-                disable(3);
-                disable(1);
-                disable(2);
-                disable(4);
-                break;
-        }
+        populateList(val);
     })
     $('select[name=fps]').on('change', function(){
         var val = parseInt($(this).val());
@@ -310,82 +384,14 @@ $(function(){
         $('#stat_fps').text($('select[name=fps] option[value=' + val + ']').text() + 'fps');
 
         // Update available FOVs
-        var res = parseInt($('select[name=res]').val());
-        $('select[name=fov] option').each(function(){ $(this).removeAttr('disabled') });
-        switch (res) {
-            case 1: // 4k
-                if (val == 9) { // 24fps supr, wide
-                    enable(3);
-                    select(3);
-                } else { // 30fps supr only
-                    disable(3);
-                    select(0);
-                }
-                break;
-            case 9: // 1080p
-                switch (val) {
-                    case 0: // 120fps wide, narr
-                        disable(3);
-                        disable(1);
-                        disable(4);
-                        select(0);
-                        break;
-                    case 2: // 90fps wide only
-                        disable(3);
-                        disable(1);
-                        disable(2);
-                        disable(4);
-                        select(0);
-                        break;
-                    case 4: // 80fps supr only
-                        disable(0);
-                        disable(1);
-                        disable(2);
-                        disable(4);
-                        select(3);
-                        break;
-                    default: // use supr for everything else
-                        select(3);
-                }
-                break;
-            case 12: // 720p
-                switch (val) {
-                    case 0: // 240fps narr only
-                        disable(0);
-                        disable(1);
-                        disable(2);
-                        disable(3);
-                        select(4);
-                        break;
-                    case 1: // 120fps supr wide med narr
-                    case 3: // 60fps supr wide med narr
-                        disable(4);
-                        select(3);
-                        break;
-                    case 2: // 100fps supr only
-                        disable(0);
-                        disable(1);
-                        disable(2);
-                        disable(4);
-                        select(3);
-                        break;
-                    case 6: // 30fps wide med narr
-                        disable(0);
-                        disable(1);
-                        disable(2);
-                        select(3);
-                        break;
-                }
-                break;
-            default: // wide is available for everything
-                select(0);
-        }
+        populateList(null, val);
     })
     $('select[name=fov]').on('change', function(){
         var val = parseInt($(this).val());
         prefs.video.fov = val;
         fn.set(4, val);
-        $('#stat_fov').text($('select[name=fov] option[value=' + val + ']').text());
+        console.log(val, $('select[name=fov] option[value=' + val + ']').attr('data-abbr'))
+        $('#stat_fov').text($('select[name=fov] option[value=' + val + ']').attr('data-abbr'));
     })
 
     /***************
@@ -393,17 +399,39 @@ $(function(){
     ***************/
     // Protune master toggle
     $('#set_pro').click(function(){
-        prefs[mode].pro = !prefs[mode].pro;
+        prefs[mode].pro = flip(prefs[mode].pro);
         var ptKey = ants[model].settings[mode].PROTUNE;
         fn.set(ptKey, prefs[mode].pro);
 
         if (prefs[mode].pro) {
-            $(this).text("on");
+            $(this).addClass("on");
             $("td.pt").each(function(){ $(this).removeClass("disabled") });
         } else {
-            $(this).text("off");
+            $(this).removeClass("on");
             $("td.pt").each(function(){ $(this).addClass("disabled") });
         }
+    })
+
+    // Stabilizer
+    $("#set_stab").click(function(){
+        // TODO: break if 4K or >60fps
+        prefs.video.stab = flip(prefs.video.stab);
+        fn.set(ants[model].settings.video.STABILIZER, prefs.video.stab);
+        if (prefs.video.stab)
+            $(this).addClass("on")
+        else
+            $(this).removeClass("on");
+    })
+
+    // Auto low light
+    $("#set_lolt").click(function(){
+        // TODO: break if <=30fps
+        prefs.video.lolt = flip(prefs.video.lolt);
+        fn.set(ants[model].settings.video.LOWLIGHT, prefs.video.lolt);
+        if (prefs.video.lolt)
+            $(this).addClass("on")
+        else
+            $(this).removeClass("on");
     })
 
     // Grid
@@ -428,24 +456,5 @@ $(function(){
                 $("#overlays .quadgrid").removeClass("hidden");
                 break;
         }
-    })
-
-    // Stabilizer
-    $("#set_stab").click(function(){
-        prefs.video.stab = !prefs.video.stab;
-        fn.set(78, prefs.video.stab);
-        if (prefs.video.stab)
-            $(this).text("on")
-        else
-            $(this).text("off");
-    })
-
-    // Auto low light
-    $("#set_lolt").click(function(){
-        prefs.video.lolt = !prefs.video.lolt;
-        if (prefs.video.lolt)
-            $(this).text("on")
-        else
-            $(this).text("off");
     })
 });

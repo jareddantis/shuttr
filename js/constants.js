@@ -37,7 +37,7 @@ var gopro = {
         },
         settings: {
             video: {
-                VIDEO_RESOLUTION: 2,
+                RESOLUTION: 2,
                 FRAME_RATE: 3,
                 FOV: 4,
                 TL_INTR: 5,

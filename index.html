@@ -40,7 +40,7 @@
                 </div>
             </div>
             <div class="resselect">
-                <p><i class="material-icons">camera</i><span id="stat_res">4k</span> <span id="stat_fps">24fps</span> <span id="stat_fov">supr</span></p>
+                <p><i class="material-icons">camera</i><span id="stat_res">4k</span> <span id="stat_fps">240fps</span> <span id="stat_fov">supr</span></p>
 
                 <div id="resselect" class="hoverdropdown">
                     <div class="dropOut">
@@ -60,17 +60,25 @@
 
                             <p>fps</p>
                             <select name="fps">
+                                <option value="0">240</option>
+                                <option value="1">120</option>
+                                <option value="2">100</option>
+                                <option value="3">90</option>
+                                <option value="4">80</option>
+                                <option value="5">60</option>
+                                <!-- <option value="6">50</option> -->
+                                <option value="7">48</option>
                                 <option value="8">30</option>
-                                <option value="9">24</option>
+                                <option value="10">24</option>
                             </select>
 
                             <p>fov</p>
                             <select name="fov">
-                                <option value="3" disabled>Superview</option>
-                                <option value="0">Wide</option>
-                                <option value="1" disabled>Medium</option>
-                                <option value="2" disabled>Narrow</option>
-                                <option value="4" disabled>Linear</option>
+                                <option value="3" data-abbr="supr">Superview</option>
+                                <option value="0" data-abbr="wide">Wide</option>
+                                <option value="1" data-abbr="med">Medium</option>
+                                <option value="2" data-abbr="nar">Narrow</option>
+                                <option value="4" data-abbr="linr">Linear</option>
                             </select>
                         </div>
                     </div>
@@ -90,16 +98,16 @@
         </div>
 
         <!-- Bottom bar -->
-        <div id="controls">
+        <div id="controls" class="disabled">
             <!-- Protune settings and shutter button -->
             <div class="left">
                 <table class="video_normal">
                     <tr>
-                        <td>protune <span id="set_pro">on</span></td>
+                        <td>protune <div id="set_pro" class="toggle on"><div class="togglebox"></div></div></td>
                         <td class="pt">color <span id="set_color">gopro</span></td>
                         <td class="pt">iso <span id="set_iso">1600</span></td>
                         <td class="pt">ev <span id="set_ev">+1.0</span></td>
-                        <td>stabilizer <span id="set_stab">off</span></td>
+                        <td>stabilizer <div id="set_stab" class="toggle"><div class="togglebox"></div></div></td>
                         <td>audio mode <span id="set_aud">wind</span></td>
                     </tr>
                     <tr>
@@ -107,7 +115,7 @@
                         <td class="pt">shtr <span id="set_shut">1/60</span></td>
                         <td class="pt">sharp <span id="set_shrp">hi</span></td>
                         <td class="pt">raw audio <span id="set_rawaud">hi</span></td>
-                        <td>auto lo lt <span id="set_lolt">off</span></td>
+                        <td>auto lo lt <div id="set_lolt" class="toggle"><div class="togglebox"></div></div></td>
                         <td>grid <span id="set_grid">off</span></td>
                     </tr>
                 </table>
